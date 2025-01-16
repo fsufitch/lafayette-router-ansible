@@ -1,0 +1,24 @@
+---
+
+- name: Install required tooling
+  ansible.builtin.dnf:
+    name: NetworkManager
+    state: present
+
+- name: Set up connection
+  community.general.nmcli:
+    state: present
+    conn_name: "{{ connection_.name }}"
+    ifname: "{{ connection_.interface }}"
+
+    type: ethernet
+
+    method4: manual
+    ip4:
+      - "{{ connection_.ipv4 }}/{{ connection_.cidr }}"
+
+    # dns4:
+    #   - "{{ connection_.ipv4 }}"
+
+    autoconnect: true
+    conn_reload: true

@@ -1,0 +1,27 @@
+router:
+  hosts:
+    marquis:
+      ansible_host: 192.168.1.119
+
+      router_subnets:
+        - id: main
+          interface: enp3s0f0
+          domain: lafayette.lan
+          ipv4: "10.1.10.1"
+          cidr: 24
+          zone: public
+          dhcp:
+            start_ipv4: 10.1.10.10
+            end_ipv4: 10.1.10.250
+            static_hosts: []
+
+        - id: iot
+          interface: enp3s0f1
+          domain: lafayette.iot
+          ipv4: 10.2.10.1
+          cidr: 24
+          zone: public
+          dhcp:
+            start_ipv4: 10.2.10.10
+            end_ipv4: 10.2.10.250
+            static_hosts: []

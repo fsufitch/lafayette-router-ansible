@@ -1,0 +1,57 @@
+# Informed by https://www.greathairengineer.com/2017/05/04/dnsmasq-dhcp-configuration-for-multiple-subnets/
+
+########## DNS ###########
+
+port=53
+bind-dynamic
+
+no-hosts
+#no-resolv
+dns-loop-detect
+
+### Set no-neg-cache to help with dev efforts whenever I play with domain registration
+#no-neg-cache
+
+# Don't forward bare-name requests
+domain-needed
+
+# Increase cache size bigly
+cache-size=100000
+
+# Allow more concurrent requests
+dns-forward-max=1000
+
+# debugging...
+#log-queries
+
+
+
+########## DHCP ##########
+
+dhcp-sequential-ip
+dhcp-lease-max=10000
+dhcp-option=option:ntp-server,144.172.118.20,137.220.57.186,69.164.202.100,72.30.35.88
+#dhcp-option=vendor:MSFT,2,1i  # Release DHCP lease when shutting down
+dhcp-leasefile=/var/lib/dnsmasq/dnsmasq.leases
+
+# debug...
+log-facility=- #stderr
+log-async
+log-queries
+log-dhcp
+
+# Actual DHCP configuration
+
+domain={{ dnsmasq_.domain }},{{ dnsmasq_.ipv4 }}/{{ dnsmasq_.cidr }}
+dhcp-range={{ dnsmasq_.dhcp.start_ipv4}},{{ dnsmasq_.dhcp.end_ipv4 }},8h
+dhcp-option=option:router,{{ dnsmasq_.ipv4 }}
+dhcp-option=option:dns-server,{{ dnsmasq_.ipv4 }}
+dhcp-option=option:domain-name,{{ dnsmasq_.domain }}
+dhcp-option=option:domain-search,{{ dnsmasq_.domain }}
+
+
+# Explicit host definitions
+
+{%- for host in dnsmasq_.dhcp.static_hosts -%}
+dhcp-host={{ host.mac }},{{ host.name }},{{ host.ipv4 }}
+{% endfor -%}

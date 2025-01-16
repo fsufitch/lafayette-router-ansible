@@ -1,0 +1,9 @@
+---
+
+connection_:
+  name:
+  interface:
+  domain:
+  ipv4:
+  cidr:
+  zone:

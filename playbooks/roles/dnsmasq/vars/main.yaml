@@ -1,0 +1,11 @@
+---
+
+dnsmasq_:
+  id:
+  domain:
+  ipv4:
+  cidr:
+  dhcp:
+    start_ipv4:
+    end_ipv4:
+    static_hosts: []
