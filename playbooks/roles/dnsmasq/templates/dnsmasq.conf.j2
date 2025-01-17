@@ -3,9 +3,12 @@
 ########## DNS ###########
 
 port=53
-bind-dynamic
+#bind-interfaces  # only bind the stuff it needs to listen on
+# interface={{ dnsmasq_.interface }}
+# listen-address={{ dnsmasq_.ipv4 }}
+# bind-dynamic
 
-no-hosts
+#no-hosts
 #no-resolv
 dns-loop-detect
 
@@ -48,6 +51,8 @@ dhcp-option=option:router,{{ dnsmasq_.ipv4 }}
 dhcp-option=option:dns-server,{{ dnsmasq_.ipv4 }}
 dhcp-option=option:domain-name,{{ dnsmasq_.domain }}
 dhcp-option=option:domain-search,{{ dnsmasq_.domain }}
+
+dhcp-client-update  # allow clients to also advertise DDNS
 
 
 # Explicit host definitions

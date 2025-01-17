@@ -1,7 +1,7 @@
 ---
 
 connection_:
-  name:
+  id:
   interface:
   domain:
   ipv4:

@@ -3,8 +3,10 @@
 dnsmasq_:
   id:
   domain:
+  interface:
   ipv4:
   cidr:
+  broadcast:
   dhcp:
     start_ipv4:
     end_ipv4:

@@ -5,6 +5,11 @@
     state: present
     name: podman
 
+- name: Remove any native dnsmasq
+  ansible.builtin.dnf:
+    state: absent
+    name: dnsmasq
+
 - name: Create DHCP configuration file
   ansible.builtin.template:
     dest: /opt/lafayette/dnsmasq/{{ dnsmasq_.id }}/dnsmasq.conf
@@ -14,17 +19,39 @@
     src: dnsmasq.conf.j2
   register: dhcp_config_result
 
+- name: Create/update podman network
+  containers.podman.podman_network:
+    name: "dnsmasq-{{ dnsmasq_.id }}"
+    state: present
+    driver: macvlan
+    opt:
+      mode: bridge
+      parent: "{{ dnsmasq_.interface }}"
+    ipam_driver: host-local
+    subnet: "{{ dnsmasq_.ipv4 }}/{{ dnsmasq_.cidr }}"
+    gateway: "{{ dnsmasq_.ipv4 }}"
+    recreate: true
+    force: true
+
 - name: Create/update dnsmasq container
   containers.podman.podman_container:
     name: "dnsmasq-{{ dnsmasq_.id }}"
     image: docker.io/strm/dnsmasq
     state: present
     recreate: true
-    ports:
-      - "{{ dnsmasq_.ipv4 }}:53:53/udp"
-      - "{{ dnsmasq_.ipv4 }}:53:53/tcp"
-      - "{{ dnsmasq_.ipv4 }}:67:67/udp"
-      - "{{ dnsmasq_.ipv4 }}:68:68/udp"
+    network:
+      - dnsmasq-{{ dnsmasq_.id }}
+    # ip: "{{ dnsmasq_.ipv4 }}"
+    # network: host
+    # publish: []
+    # expose: []
+    # ports:
+    #   - "{{ dnsmasq_.ipv4 }}:53:53/udp"
+    #   - "{{ dnsmasq_.ipv4 }}:53:53/tcp"
+    #   - "{{ dnsmasq_.ipv4 }}:67:67/udp"
+    #   - "{{ dnsmasq_.ipv4 }}:68:68/udp"
+    #   - "{{ dnsmasq_.broadcast }}:67:67/udp"
+    #   - "{{ dnsmasq_.broadcast }}:68:68/udp"
     cap_add:
       - NET_ADMIN
       - NET_BIND_SERVICE
