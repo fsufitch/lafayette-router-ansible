@@ -1,4 +1,4 @@
-# `dnsmasq_`
+# `dnsmasq`
 
 This role sets up a `dnsmasq` DNS server. Notes:
 
