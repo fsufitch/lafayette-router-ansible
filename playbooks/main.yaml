@@ -1,0 +1,4 @@
+---
+
+- name: Import dnsmasq base playbook
+  ansible.builtin.import_playbook: dnsmasq-base.yaml

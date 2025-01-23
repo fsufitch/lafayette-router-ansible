@@ -1,5 +1,0 @@
----
-
-- name: Role stuff
-  ansible.builtin.debug:
-    msg: hello

@@ -10,6 +10,5 @@ dnsmasq_neg_cache: true
 dnsmasq_cache_size: 999999
 dnsmasq_log_queries: false
 dnsmasq_address_records: []
-# - address: 1.2.3.4
-#   domains:
-#     - foo.com/bar.net
+# - addresses: [1.2.3.4, 4.5.6.7]
+#   domains: [foo.com, bar.net]

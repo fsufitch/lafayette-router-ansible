@@ -1,7 +1,7 @@
 ---
 
-- name: Dnsmasq
-  hosts: marquis
+- name: Dnsmasq service base setup
+  hosts: router
   become: true
 
   roles:
