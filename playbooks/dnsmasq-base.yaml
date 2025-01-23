@@ -1,0 +1,8 @@
+---
+
+- name: Dnsmasq
+  hosts: marquis
+  become: true
+
+  roles:
+    - net.lafayette.dnsmasq

@@ -1,0 +1,15 @@
+dnsmasq_dir: /opt/lafayette/dnsmasq
+dnsmasq_image_build: true
+dnsmasq_image: lafayette-dnsmasq
+dnsmasq_container_name: lafayette-dnsmasq
+dnsmasq_dns_port: 5353
+dnsmasq_interfaces: []
+dnsmasq_except_interfaces: []
+dnsmasq_resolv: false
+dnsmasq_neg_cache: true
+dnsmasq_cache_size: 999999
+dnsmasq_log_queries: false
+dnsmasq_address_records: []
+# - address: 1.2.3.4
+#   domains:
+#     - foo.com/bar.net

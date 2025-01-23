@@ -1,0 +1,54 @@
+# DNS is only provided for the sake of DHCP-based resolution
+
+########## DNS ##########
+
+port={{ dnsmasq_dns_port }}
+
+{% if dnsmasq_interfaces %}
+interfaces={{ dnsmasq_interfaces | join(',') }}
+{% else %}
+# No interfaces specified, bind dynamically to everything
+bind-dynamic
+{% endif %}
+
+{% if dnsmasq_except_interfaces %}
+# Do not bind to these
+except-interface={{ dnsmasq_except_interfaces | join(',') }}
+{% endif %}
+
+{% if not dnsmasq_resolv %}
+# Do not respect system upstream resolver
+no-resolv
+{% endif %}
+
+dns-loop-detect
+
+{% if not dnsmasq_neg_cache %}
+no-neg-cache
+{% endif %}
+
+# Don't forward bare-name requests, those should be local only
+domain-needed
+
+# Increase cache size bigly
+#cache-size={{ dnsmasq_cache_size }}
+
+# Allow more concurrent requests
+dns-forward-max=1000
+
+
+{% if dnsmasq_log_queries %}
+# Log queries for debugging
+log-queries
+{% endif %}
+
+{% for record in dnsmasq_address_records %}{% for address in record.addresses %}
+address=/{{ record.domains | join('/') }}/{{ address }}
+{% endfor%}{% endfor %}
+
+{# 
+
+# Manually defined other hosts
+#address=/cqrlog-db/cqrlog-db.sufitchi.home/10.1.30.28
+host-record=cqrlog-db.sufitchi.home,10.1.30.28,30
+host-record=phobos-dev.sufitchi.home,10.1.30.29,30 #}

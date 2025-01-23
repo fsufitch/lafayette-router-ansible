@@ -1,0 +1,90 @@
+---
+
+- name: Create dnsmasq service directory
+  ansible.builtin.file:
+    path: "{{ dnsmasq_dir }}"
+    state: directory
+    owner: root
+    group: root
+    mode: ug+rwx,o+rx
+
+- name: Create dnsmasq config dropins directory
+  ansible.builtin.file:
+    path: "{{ dnsmasq_dir }}/conf.d"
+    state: directory
+    owner: root
+    group: root
+    mode: ug+rwx,o+rx
+
+- name: Create dnsmasq var directory
+  ansible.builtin.file:
+    path: "{{ dnsmasq_dir }}/var"
+    state: directory
+    owner: root
+    group: root
+    mode: ug+rwx,o+rx
+
+
+- name: Build dnsmasq image
+  when: dnsmasq_image_build
+  containers.podman.podman_image:
+    name: "{{ dnsmasq_image }}"
+    state: build
+    force: true
+    build:
+      container_file: "{{ lookup('ansible.builtin.file', 'files/Containerfile') }}"
+
+  register: build_result
+
+- name: Configure dnsmasq container
+  containers.podman.podman_container:
+    name: "{{ dnsmasq_container_name }}"
+    image: "{{ dnsmasq_image }}"
+    state: present
+    recreate: "{{ build_result.changed }}"
+
+    interactive: true
+    tty: true
+    init: true
+
+    network: host
+    hostname: "{{ ansible_hostname }}"
+
+    cap_add:
+      - NET_ADMIN
+      - NET_BIND_SERVICE
+      - NET_BROADCAST
+      - NET_RAW
+    volumes:
+      - "{{ dnsmasq_dir }}/conf.d:/etc/dnsmasq.conf.d"
+      - "{{ dnsmasq_dir }}/var:/var/lib/dnsmasq:z"
+  register: dnsmasq_container_result
+
+  notify:
+    - "net.lafayette.dnsmasq :: Restart dnsmasq"
+
+- name: Create/update dnsmasq Systemd service
+  containers.podman.podman_generate_systemd:
+    name: "{{ dnsmasq_container_name }}"
+    container_prefix: "podman"
+    # Service is effectively: podman-{{ dnsmasq_container_name }}.service
+
+    no_header: true
+    force: true
+    restart_policy: on-failure
+    restart_sec: 10
+    dest: "{{ dnsmasq_dir }}"
+  notify:
+    - "net.lafayette.dnsmasq :: Link Systemd service"
+    - "net.lafayette.dnsmasq :: Reload Systemd"
+    - "net.lafayette.dnsmasq :: Restart dnsmasq"
+
+- name: Configure dnsmasq
+  ansible.builtin.template:
+    dest: "{{ dnsmasq_dir }}/conf.d/00-dns.conf"
+    mode: "0644"
+    owner: root
+    group: root
+    src: 00-dns.conf.j2
+  notify:
+    - "net.lafayette.dnsmasq :: Restart dnsmasq"

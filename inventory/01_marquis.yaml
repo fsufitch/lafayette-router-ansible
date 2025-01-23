@@ -3,25 +3,14 @@ router:
     marquis:
       ansible_host: 192.168.1.119
 
-      router_subnets:
-        - id: main
-          interface: enp3s0f0
-          domain: lafayette.lan
-          ipv4: 10.1.10.1
-          cidr: 24
-          zone: public
-          dhcp:
-            start_ipv4: 10.1.10.10
-            end_ipv4: 10.1.10.250
-            static_hosts: []
+      dnsmasq_dns_port: 5353
+      dnsmasq_interfaces: [] # Use dynamic bind
+      dnsmasq_except_interfaces:
+        - enp0s7 # Do not bind to public internet
+      # dnsmasq_resolv: false
+      # dnsmasq_neg_cache: true
+      # dnsmasq_log_queries: false
 
-        - id: iot
-          interface: enp3s0f1
-          domain: lafayette.iot
-          ipv4: 10.2.10.1
-          cidr: 24
-          zone: public
-          dhcp:
-            start_ipv4: 10.2.10.10
-            end_ipv4: 10.2.10.250
-            static_hosts: []
+      dnsmasq_address_records:
+        - addresses: [10.1.10.1, 10.2.10.1]
+          domains: [marquis]
