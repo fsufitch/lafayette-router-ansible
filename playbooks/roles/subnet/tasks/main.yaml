@@ -22,5 +22,4 @@
       interface: "{{ subnet_.interface }}"
       ipv4: "{{ subnet_.ipv4 }}"
       cidr: "{{ subnet_.cidr }}"
-      broadcast: "{{ subnet_.broadcast }}"
       dhcp: "{{ subnet_.dhcp }}"

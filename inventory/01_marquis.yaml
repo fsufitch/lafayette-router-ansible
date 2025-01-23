@@ -9,20 +9,19 @@ router:
           domain: lafayette.lan
           ipv4: 10.1.10.1
           cidr: 24
-          broadcast: 10.1.10.255
           zone: public
           dhcp:
             start_ipv4: 10.1.10.10
             end_ipv4: 10.1.10.250
             static_hosts: []
 
-        # - id: iot
-        #   interface: enp3s0f1
-        #   domain: lafayette.iot
-        #   ipv4: 10.2.10.1
-        #   cidr: 24
-        #   zone: public
-        #   dhcp:
-        #     start_ipv4: 10.2.10.10
-        #     end_ipv4: 10.2.10.250
-        #     static_hosts: []
+        - id: iot
+          interface: enp3s0f1
+          domain: lafayette.iot
+          ipv4: 10.2.10.1
+          cidr: 24
+          zone: public
+          dhcp:
+            start_ipv4: 10.2.10.10
+            end_ipv4: 10.2.10.250
+            static_hosts: []

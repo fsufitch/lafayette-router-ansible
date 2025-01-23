@@ -24,12 +24,14 @@
     name: "dnsmasq-{{ dnsmasq_.id }}"
     state: present
     driver: macvlan
+    ipv6: true
     opt:
       mode: bridge
       parent: "{{ dnsmasq_.interface }}"
     ipam_driver: host-local
     subnet: "{{ dnsmasq_.ipv4 }}/{{ dnsmasq_.cidr }}"
-    gateway: "{{ dnsmasq_.ipv4 }}"
+    # gateway: "{{ dnsmasq_.ipv4 }}"
+    disable_dns: false
     recreate: true
     force: true
 
@@ -41,17 +43,6 @@
     recreate: true
     network:
       - dnsmasq-{{ dnsmasq_.id }}
-    # ip: "{{ dnsmasq_.ipv4 }}"
-    # network: host
-    # publish: []
-    # expose: []
-    # ports:
-    #   - "{{ dnsmasq_.ipv4 }}:53:53/udp"
-    #   - "{{ dnsmasq_.ipv4 }}:53:53/tcp"
-    #   - "{{ dnsmasq_.ipv4 }}:67:67/udp"
-    #   - "{{ dnsmasq_.ipv4 }}:68:68/udp"
-    #   - "{{ dnsmasq_.broadcast }}:67:67/udp"
-    #   - "{{ dnsmasq_.broadcast }}:68:68/udp"
     cap_add:
       - NET_ADMIN
       - NET_BIND_SERVICE

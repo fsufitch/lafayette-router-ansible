@@ -16,6 +16,8 @@
     ip4:
       - "{{ connection_.ipv4 }}/{{ connection_.cidr }}"
 
+    zone: "{{ connection_.zone }}"
+
     autoconnect: true
     conn_reload: true
 
