@@ -1,0 +1,8 @@
+---
+networking_connections:
+  # - name:
+  #   interface:
+  #   ip_manual: true
+  #   ipv4:
+  #   ipv4_cidr: 24
+  #   zone: lafayette

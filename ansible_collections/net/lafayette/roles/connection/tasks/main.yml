@@ -1,0 +1,41 @@
+- name: Ensure required tooling
+  ansible.builtin.dnf:
+    name: NetworkManager
+    state: present
+
+- name: Set up automatic (DHCP) connection ({{ connection_name }})
+  when: not connection_ip_manual
+  community.general.nmcli:
+    state: present
+    conn_name: "{{ connection_name }}"
+    ifname: "{{ connection_interface }}"
+
+    type: ethernet
+    method4: auto
+    method6: auto
+
+    autoconnect: true
+    conn_reload: true
+
+- name: Set up manual connection ({{ connection_name }})
+  when: connection_ip_manual
+  community.general.nmcli:
+    state: present
+    conn_name: "{{ connection_name }}"
+    ifname: "{{ connection_interface }}"
+
+    type: ethernet
+    method4: manual
+    ip4:
+      - "{{ connection_ipv4 }}/{{ connection_ipv4_cidr }}"
+    method6: ignore  # TODO?
+
+    zone: "{{ connection_zone }}"
+
+    autoconnect: true
+    conn_reload: true
+
+- name: Connection up ({{ connection_name }})
+  community.general.nmcli:
+    state: up
+    conn_name: "{{ connection_name }}"

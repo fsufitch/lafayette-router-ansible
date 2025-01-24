@@ -1,0 +1,8 @@
+---
+
+- name: Networking setup
+  hosts: router
+  become: true
+
+  roles:
+    - net.lafayette.networking

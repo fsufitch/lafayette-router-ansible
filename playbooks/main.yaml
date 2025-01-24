@@ -1,4 +1,7 @@
 ---
 
+- name: Import networking playbook
+  ansible.builtin.import_playbook: networking.yaml
+
 - name: Import dnsmasq base playbook
   ansible.builtin.import_playbook: dnsmasq-base.yaml
