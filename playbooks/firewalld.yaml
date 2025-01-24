@@ -1,0 +1,8 @@
+---
+
+- name: Firewalld setup
+  hosts: router
+  become: true
+
+  roles:
+    - net.lafayette.firewalld

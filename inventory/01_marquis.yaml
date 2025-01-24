@@ -1,7 +1,47 @@
 router:
   hosts:
     marquis:
+      # What is ansible actually connecting to?
       ansible_host: 192.168.1.119
+
+      # Common "macro" variables, for reuse and easy changing
+      _internet_interface: enp0s7
+      _main_interface: enp3s0f0
+      _iot_interface: enp3s0f1
+
+      # Actual variables for roles
+      firewalld_default_zone: internet
+      firewalld_zones:
+        - name: lafayette-main
+          target: default
+          forward: true
+          masquerade: false
+          ports:
+            - 1-65535/tcp
+            - 1-65535/udp
+          interfaces:
+            - "{{ _main_interface }}"
+
+        - name: lafayette-iot
+          target: default
+          forward: true
+          masquerade: false
+          services:
+            - ssh
+            - dhcp
+            - dns
+          interfaces:
+            - "{{ _iot_interface }}"
+
+        - name: internet
+          target: default
+          forward: true
+          masquerade: true
+          services:
+            - ssh
+            - cockpit
+          interfaces:
+            - "{{ _internet_interface }}"
 
       networking_connections:
         - name: lafayette-main
@@ -9,19 +49,16 @@ router:
           ip_manual: true
           ipv4: 10.1.10.1
           ipv4_cidr: 24
-          zone: lafayette-main
 
         - name: lafayette-iot
           interface: enp3s0f1
           ip_manual: true
           ipv4: 10.2.10.1
           ipv4_cidr: 24
-          zone: lafayette-iot
 
         - name: internet
-          interface: enp0s7
+          interface: "{{ _internet_interface }}"
           ip_manual: false
-          zone: internet
 
       dnsmasq_dns_port: 5353
       dnsmasq_interfaces: [] # Use dynamic bind

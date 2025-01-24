@@ -1,0 +1,11 @@
+---
+firewalld_zones:
+  # - name:
+  #   target: default
+  #   forward: true
+  #   masquerade: false
+  #   services: []
+  #   ports: []
+  #   interfaces: []
+
+firewalld_default_zone: public

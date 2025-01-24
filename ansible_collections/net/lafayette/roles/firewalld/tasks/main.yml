@@ -1,0 +1,20 @@
+---
+
+- name: Ensure Firewalld
+  ansible.builtin.dnf:
+    name: firewalld
+    state: present
+
+
+- name: Configure zones
+  loop: "{{ firewalld_zones }}"
+  ansible.builtin.include_tasks:
+    file: zone.yml
+    apply:
+      vars:
+        zone: "{{ item }}"
+
+- name: Set default zone ({{ firewalld_default_zone }})
+  ansible.builtin.command:
+    cmd: firewall-cmd --set-default-zone={{ firewalld_default_zone }}
+  notify: "net.lafayette.firewalld :: Reload"
