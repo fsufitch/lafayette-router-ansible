@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<policy target="{{ 'ACCEPT' if policy.target is undefined else policy.target }}">
+  <ingress-zone name="{{ policy.ingress_zone }}"/>
+  <egress-zone name="{{ policy.egress_zone }}"/>
+</policy>

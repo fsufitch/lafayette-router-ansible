@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<zone target="{{ 'default' if zone.target is undefined else zone.target }}">
+  <short>{{ zone.name }}</short>
+  <description>{{ '' if zone.description is undefined else zone.description }}</description>
+
+  {% if (zone.masquerade is defined) and (zone.masquerade) %}
+  <masquerade />
+  {% endif %}
+  
+  {% if (zone.forward is not defined) or (zone.forward) %}
+  <forward />
+  {% endif %}
+
+  {% for interface in (zone.interfaces if zone.interfaces is defined else []) %}
+  <interface name="{{ interface }}" />
+  {% endfor %}
+
+  {% for service in (zone.services if zone.services is defined else []) %}
+  <service name="{{ service }}" />
+  {% endfor %}
+
+  {% for port in (zone.ports if zone.ports is defined else []) %}
+  {% set port_number = port.split('/')[0] %}
+  {% set port_protocol = port.split('/')[1] %}
+  <port port="{{ port_number }}" protocol="{{ port_protocol }}"/>
+  {% endfor %}
+</zone>

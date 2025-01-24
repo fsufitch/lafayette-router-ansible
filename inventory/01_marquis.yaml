@@ -43,6 +43,15 @@ router:
           interfaces:
             - "{{ _internet_interface }}"
 
+      firewalld_forward_policies:
+        - name: main2internet
+          ingress_zone: lafayette-main
+          egress_zone: internet
+
+        - name: iot2internet
+          ingress_zone: lafayette-iot
+          egress_zone: internet
+
       networking_connections:
         - name: lafayette-main
           interface: enp3s0f0

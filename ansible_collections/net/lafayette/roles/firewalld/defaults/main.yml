@@ -9,3 +9,8 @@ firewalld_zones:
   #   interfaces: []
 
 firewalld_default_zone: public
+
+firewalld_forward_policies:
+  # - name:
+  #   ingress_zone:
+  #   egress_zone:
