@@ -1,0 +1,8 @@
+---
+
+- name: Pihole setup
+  hosts: router
+  become: true
+
+  roles:
+    - net.lafayette.pihole

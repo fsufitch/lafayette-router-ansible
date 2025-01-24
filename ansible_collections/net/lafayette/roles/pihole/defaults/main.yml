@@ -1,0 +1,14 @@
+---
+
+pihole_dir: /opt/lafayette/pihole
+pihole_image: docker.io/pihole/pihole:latest
+pihole_container_name: lafayette-pihole
+
+pihole_port_http: 80
+pihole_port_dns: 53
+
+pihole_web_password: changeme
+pihole_reverse_dhcp_cidr: 10.0.0.0/8
+pihole_reverse_dhcp_target:  # 1.2.3.4:5353
+pihole_reverse_dhcp_domain:  # example.com
+pihole_local_ip: # 1.2.3.4

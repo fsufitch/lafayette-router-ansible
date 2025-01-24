@@ -1,0 +1,93 @@
+---
+
+- name: Create Pihole dirs
+  loop:
+    - "{{ pihole_dir }}"
+    - "{{ pihole_dir }}/etc-pihole"
+    - "{{ pihole_dir }}/etc-dnsmasq.d"
+    - "{{ pihole_dir }}/var-dnsmasq"
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: root
+    group: root
+    mode: ug+rwx,o+rx
+
+- name: Pihole environment files/dns-servers.conf
+  ansible.builtin.template:
+    src: environment.j2
+    dest: "{{ pihole_dir }}/environment"
+    owner: root
+    group: root
+    mode: ug+rw,o-rw
+  register: environment_result
+
+- name: Get Pihole container image
+  containers.podman.podman_image:
+    name: "{{ pihole_image }}"
+    state: present
+  register: image_result
+
+- name: Configure Pihole container
+  containers.podman.podman_container:
+    name: "{{ pihole_container_name }}"
+    image: "{{ pihole_image }}"
+    state: present
+    recreate: "{{ image_result.changed or environment_result.changed }}"
+
+    env:
+      TZ: "{{ ansible_date_time['tz'] }}"
+      WEBPASSWORD: "{{ pihole_web_password }}"
+      FTLCONF_LOCAL_IPV4: "{{ pihole_local_ip }}"
+
+      # Inside a container, it's safe to be root
+      DNSMASQ_USER: root
+
+      # These values are relevant only in the container
+      WEB_PORT: 80
+      WEB_BIND_ADDR: 0.0.0.0
+
+      PIHOLE_DOMAIN: "{{ pihole_reverse_dhcp_domain }}"
+
+      REV_SERVER: "true"
+      REV_SERVER_DOMAIN: "{{ pihole_reverse_dhcp_domain }}"
+      REV_SERVER_TARGET: "{{ pihole_reverse_dhcp_target }}"
+      REV_SERVER_CIDR: "{{ pihole_reverse_dhcp_cidr }}"
+
+    interactive: true
+    tty: true
+
+    hostname: pi.hole
+
+    ports:
+      - "{{ pihole_local_ip }}:{{ pihole_port_http }}:80/tcp"
+      - "{{ pihole_local_ip }}:{{ pihole_port_dns }}:53/udp"
+      - "{{ pihole_local_ip }}:{{ pihole_port_dns }}:53/tcp"
+
+    volumes:
+      - "{{ pihole_dir }}/etc-pihole:/etc/pihole:rw,z"
+      - "{{ pihole_dir }}/etc-dnsmasq.d:/etc/dnsmasq.d:rw,z"
+      - "{{ pihole_dir }}/var-dnsmasq:/var/lib/dnsmasq:rw,z"
+
+
+  notify:
+    - "net.lafayette.pihole :: Reload Systemd"
+    - "net.lafayette.pihole :: Restart Pihole"
+
+- name: Create Pihole Systemd service
+  containers.podman.podman_generate_systemd:
+    name: "{{ pihole_container_name }}"
+    container_prefix: "podman"
+    # Service is effectively: podman-{{ pihole_container_name }}.service
+
+    no_header: true
+    force: true
+    restart_policy: on-failure
+    restart_sec: 3
+    dest: "{{ pihole_dir }}"
+
+  notify:
+    - "net.lafayette.pihole :: Link Systemd service"
+    - "net.lafayette.pihole :: Reload Systemd"
+    - "net.lafayette.pihole :: Restart Pihole"
+

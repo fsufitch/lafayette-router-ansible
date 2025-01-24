@@ -1,0 +1,18 @@
+TZ={{ ansible_date_time['tz'] }}
+WEBPASSWORD={{ pihole_web_password }}
+FTLCONF_LOCAL_IPV4= {{ pihole_local_ip }}
+
+# inside a container, it's safe to be root
+DNSMASQ_USER=root
+
+# These values are relevant only in the container
+WEB_PORT=80
+WEB_BIND_ADDR=0.0.0.0
+
+
+PIHOLE_DOMAIN
+
+REV_SERVER=true
+REV_SERVER_DOMAIN=
+REV_SERVER_TARGET=
+REV_SERVER_CIDR=

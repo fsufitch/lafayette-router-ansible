@@ -24,7 +24,7 @@
     conn_name: "{{ connection_name }}"
     ifname: "{{ connection_interface }}"
 
-    type: ethernet
+    type: vlan
     method4: manual
     ip4:
       - "{{ connection_ipv4 }}/{{ connection_ipv4_cidr }}"

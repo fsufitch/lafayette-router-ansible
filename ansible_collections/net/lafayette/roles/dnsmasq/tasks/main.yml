@@ -56,8 +56,8 @@
       - NET_BROADCAST
       - NET_RAW
     volumes:
-      - "{{ dnsmasq_dir }}/conf.d:/etc/dnsmasq.conf.d"
-      - "{{ dnsmasq_dir }}/var:/var/lib/dnsmasq:z"
+      - "{{ dnsmasq_dir }}/conf.d:/etc/dnsmasq.conf.d:z"
+      - "{{ dnsmasq_dir }}/var:/var/lib/dnsmasq:rw,z"
   register: dnsmasq_container_result
 
   notify:
