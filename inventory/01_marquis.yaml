@@ -8,6 +8,8 @@ router:
       _internet_interface: enp0s7
       _main_interface: enp3s0f0
       _iot_interface: enp3s0f1
+      _main_domain: lafayette.lan
+      _iot_domain: lafayette.iot
 
       # Actual variables for roles
       firewalld_default_zone: internet
@@ -76,10 +78,40 @@ router:
 
       dnsmasq_address_records:
         - addresses: [10.1.10.1, 10.2.10.1]
-          domains: [marquis, pi.hole]
+          domains: ["{{ ansible_hostname }}", pi.hole]
+
+      dnsmasq_dhcp_subnets:
+        - name: main
+          domain: lafayette.lan
+          interface: "{{ _main_interface }}"
+          cidr_block: 10.1.10.0/24
+          router_ip: 10.1.10.1
+          range_start: 10.1.10.2
+          range_end: 10.1.10.250
+          ignore_names: []
+
+          force_hosts:
+            - hostname: wap1
+              mac: 80:cc:9c:47:76:4a
+              ipv4: 10.1.10.101
+
+            - hostname: wap2
+              mac: 80:cc:9c:47:76:4a
+              ipv4: 10.1.10.102
+
+        - name: iot
+          domain: lafayette.iot
+          interface: "{{ _iot_interface }}"
+          cidr_block: 10.2.10.0/24
+          router_ip: 10.2.10.1
+          range_start: 10.2.10.2
+          range_end: 10.2.10.250
+          ignore_names: []
+
+          force_hosts: []
 
       pihole_web_password: changeme
       pihole_reverse_dhcp_cidr: 10.0.0.0/8
       pihole_reverse_dhcp_target: "10.1.10.1#5353" # 1.2.3.4:5353
-      pihole_reverse_dhcp_domain: lafayette.lan
+      pihole_reverse_dhcp_domain: "{{ _main_domain }}"
       pihole_local_ip: 10.1.10.1

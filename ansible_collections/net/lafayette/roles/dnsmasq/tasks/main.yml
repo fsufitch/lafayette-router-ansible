@@ -88,3 +88,17 @@
     src: 00-dns.conf.j2
   notify:
     - "net.lafayette.dnsmasq :: Restart dnsmasq"
+
+- name: "Create subnet DHCP config files"
+  loop: "{{ dnsmasq_dhcp_subnets }}"
+  loop_control:
+    loop_var: dnsmasq_dhcp_subnet
+
+  ansible.builtin.template:
+    dest: "{{ dnsmasq_dir }}/conf.d/01-dhcp-{{ dnsmasq_dhcp_subnet.name }}.conf"
+    mode: "0644"
+    owner: root
+    group: root
+    src: 01-dhcp.conf.j2
+  notify:
+    - "net.lafayette.dnsmasq :: Restart dnsmasq"

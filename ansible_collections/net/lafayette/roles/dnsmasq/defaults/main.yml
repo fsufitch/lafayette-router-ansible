@@ -12,3 +12,23 @@ dnsmasq_log_queries: false
 dnsmasq_address_records: []
 # - addresses: [1.2.3.4, 4.5.6.7]
 #   domains: [foo.com, bar.net]
+
+dnsmasq_dhcp_ntp_servers:
+  - 144.172.118.20
+  - 137.220.57.186
+  - 69.164.202.100
+  - 72.30.35.88
+
+dnsmasq_dhcp_subnets: []
+# - name: # main
+#   domain:  # lafayette.lan
+#   interface:  # eth0
+#   cidr_block:  # 10.1.10.0/24
+#   router_ip: # 10.1.10.1
+#   range_start: # 10.1.10.10
+#   range_end: # 10.1.10.250
+#   ignore_names: []  # domain names to not assign DNS entries
+#   force_hosts: []
+#     - hostname: myhost
+#       mac: "12:34:56:78:90:12"
+#       ipv4: 10.1.10.100

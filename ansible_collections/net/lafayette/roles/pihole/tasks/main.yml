@@ -90,4 +90,3 @@
     - "net.lafayette.pihole :: Link Systemd service"
     - "net.lafayette.pihole :: Reload Systemd"
     - "net.lafayette.pihole :: Restart Pihole"
-

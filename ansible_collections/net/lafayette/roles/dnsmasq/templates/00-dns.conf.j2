@@ -42,13 +42,21 @@ dns-forward-max=1000
 log-queries
 {% endif %}
 
+# Logs to stderr
+log-facility=-
+log-async
+log-queries
+log-dhcp
+
 {% for record in dnsmasq_address_records %}{% for address in record.addresses %}
 address=/{{ record.domains | join('/') }}/{{ address }}
 {% endfor%}{% endfor %}
 
-{# 
+########## DHCP ##########
 
-# Manually defined other hosts
-#address=/cqrlog-db/cqrlog-db.sufitchi.home/10.1.30.28
-host-record=cqrlog-db.sufitchi.home,10.1.30.28,30
-host-record=phobos-dev.sufitchi.home,10.1.30.29,30 #}
+# NTP servers
+dhcp-option=option:ntp-server,{{ dnsmasq_dhcp_ntp_servers | join(',') }}
+
+# Location of lease file
+# NOTE: this is in the container, not in the host
+dhcp-leasefile=/var/lib/dnsmasq/dnsmasq.leases

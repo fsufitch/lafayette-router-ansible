@@ -1,6 +1,6 @@
 ---
 
-- name: Dnsmasq service base setup
+- name: Dnsmasq service setup
   hosts: router
   become: true
 

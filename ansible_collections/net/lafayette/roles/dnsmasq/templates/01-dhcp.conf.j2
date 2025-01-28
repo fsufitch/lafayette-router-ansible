@@ -1,0 +1,30 @@
+{# auth-server={{ ansible_hostname }}.{{ dnsmasq_dhcp_subnet.domain }},{{ dnsmasq_dhcp_subnet.interface }} #}
+{# interface-name={{ ansible_hostname }}.{{ dnsmasq_dhcp_subnet.domain }},eth0 #}
+{# auth-zone={{ dnsmasq_dhcp_subnet.domain }},{{ dnsmasq_dhcp_subnet.cidr_block }} #}
+
+domain={{ dnsmasq_dhcp_subnet.domain }},{{ dnsmasq_dhcp_subnet.cidr_block }}
+dhcp-range=set:{{ dnsmasq_dhcp_subnet.name }},{{ dnsmasq_dhcp_subnet.range_start }},{{ dnsmasq_dhcp_subnet.range_end }},8h
+dhcp-option=tag:{{ dnsmasq_dhcp_subnet.name }},option:router,{{ dnsmasq_dhcp_subnet.router_ip }}
+dhcp-option=tag:{{ dnsmasq_dhcp_subnet.name }},option:dns-server,{{ dnsmasq_dhcp_subnet.router_ip }}
+dhcp-option=tag:{{ dnsmasq_dhcp_subnet.name }},option:domain-name,{{ dnsmasq_dhcp_subnet.domain }}
+dhcp-option=tag:{{ dnsmasq_dhcp_subnet.name }},option:domain-search,{{ dnsmasq_dhcp_subnet.domain }}
+
+# My own address
+address=/{{ ansible_hostname }}.{{ dnsmasq_dhcp_subnet.domain }}/{{ dnsmasq_dhcp_subnet.router_ip }}
+address=/{{ ansible_hostname }}/{{ dnsmasq_dhcp_subnet.router_ip }}
+
+
+{% if dnsmasq_dhcp_subnet.ignore_names %}
+# Ignore some hostnames
+{% for ignore_name in dnsmasq_dhcp_subnet.ignore_names %}
+dhcp-name-match=set:ignore-{{ dnsmasq_dhcp_subnet.name }},{{ ignore_name }}
+{% endfor %}
+dhcp-ignore-names=tag:ignore-{{ dnsmasq_dhcp_subnet.name }}
+{% endif %}
+
+{% if dnsmasq_dhcp_subnet.force_hosts %}
+# Forced host names for some devices
+{% for host in dnsmasq_dhcp_subnet.force_hosts %}
+dhcp-host={{ host.mac }},{{ host.hostname }},{{ host.ipv4 }}
+{% endfor %}
+{% endif %}
