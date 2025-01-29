@@ -6,6 +6,12 @@
     state: present
 
 
+- name: Ensure firewalld running
+  ansible.builtin.systemd:
+    name: firewalld
+    state: started
+    enabled: true
+
 - name: Configure zones
   loop: "{{ firewalld_zones }}"
   loop_control:
@@ -32,7 +38,7 @@
     backup: true
   notify: "net.lafayette.firewalld :: Reload"
 
-- name: Set default zone ({{ firewalld_default_zone }})
-  ansible.builtin.command:
-    cmd: firewall-cmd --set-default-zone={{ firewalld_default_zone }}
-  notify: "net.lafayette.firewalld :: Reload"
+# - name: Set default zone ({{ firewalld_default_zone }})
+#   ansible.builtin.command:
+#     cmd: firewall-cmd --set-default-zone={{ firewalld_default_zone }}
+#   notify: "net.lafayette.firewalld :: Reload"

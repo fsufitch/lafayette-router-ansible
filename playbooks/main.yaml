@@ -1,14 +1,11 @@
 ---
 
-- name: Import firewall playbook
-  ansible.builtin.import_playbook: firewalld.yaml
+- name: Set up Lafayette-style router
+  hosts: router
+  become: true
 
-- name: Import networking playbook
-  ansible.builtin.import_playbook: networking.yaml
-
-- name: Import dnsmasq playbook
-  ansible.builtin.import_playbook: dnsmasq.yaml
-
-- name: Import pihole playbook
-  ansible.builtin.import_playbook: pihole.yaml
-
+  roles:
+    - net.lafayette.firewalld
+    - net.lafayette.networking
+    - net.lafayette.dnsmasq
+    - net.lafayette.pihole

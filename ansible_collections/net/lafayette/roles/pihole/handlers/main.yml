@@ -1,21 +1,7 @@
 ---
 
-- name: "net.lafayette.pihole :: Link Systemd service"
-  ansible.builtin.file:
-    path: /etc/systemd/system/podman-{{ pihole_container_name }}.service
-    state: link
-    src: "{{ pihole_dir }}/podman-{{ pihole_container_name }}.service"
-  notify:
-    - "net.lafayette.pihole :: Reload Systemd"
-    - "net.lafayette.pihole :: Restart Pihole"
-
-- name: "net.lafayette.pihole :: Reload Systemd"
+- name: "net.lafayette.pihole :: Service updated"
   ansible.builtin.systemd:
+    name: "{{ pihole_container_name }}"
     daemon_reload: true
-  notify:
-    - "net.lafayette.pihole :: Restart Pihole"
-
-- name: "net.lafayette.pihole :: Restart Pihole"
-  ansible.builtin.systemd:
-    name: podman-{{ pihole_container_name }}.service
     state: restarted

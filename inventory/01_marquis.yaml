@@ -25,8 +25,8 @@ router:
             - "{{ _main_interface }}"
 
         - name: lafayette-iot
-          target: default
-          forward: true
+          target: "%%REJECT%%"
+          forward: false
           masquerade: false
           services:
             - ssh
@@ -36,7 +36,7 @@ router:
             - "{{ _iot_interface }}"
 
         - name: internet
-          target: default
+          target: "%%REJECT%%"
           forward: true
           masquerade: true
           services:
@@ -56,20 +56,23 @@ router:
 
       networking_connections:
         - name: lafayette-main
-          interface: enp3s0f0
+          interface: "{{ _main_interface }}"
           ip_manual: true
           ipv4: 10.1.10.1
           ipv4_cidr: 24
+          zone: lafayette-main
 
         - name: lafayette-iot
-          interface: enp3s0f1
+          interface: "{{ _iot_interface }}"
           ip_manual: true
           ipv4: 10.2.10.1
           ipv4_cidr: 24
+          zone: lafayette-iot
 
         - name: internet
           interface: "{{ _internet_interface }}"
           ip_manual: false
+          zone: internet
 
       dnsmasq_dns_port: 5353
       dnsmasq_interfaces: [] # Use dynamic bind

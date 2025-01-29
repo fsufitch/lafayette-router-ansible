@@ -4,3 +4,4 @@ connection_name:
 connection_ip_manual: false
 connection_ipv4:
 connection_ipv4_cidr: 24
+connection_zone:

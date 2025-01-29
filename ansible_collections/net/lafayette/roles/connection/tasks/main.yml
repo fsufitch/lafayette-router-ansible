@@ -17,6 +17,8 @@
     autoconnect: true
     conn_reload: true
 
+    zone: "{{ connection_zone }}"
+
 - name: Set up manual connection ({{ connection_name }})
   when: connection_ip_manual
   community.general.nmcli:
@@ -24,7 +26,7 @@
     conn_name: "{{ connection_name }}"
     ifname: "{{ connection_interface }}"
 
-    type: vlan
+    type: ethernet
     method4: manual
     ip4:
       - "{{ connection_ipv4 }}/{{ connection_ipv4_cidr }}"
@@ -32,6 +34,8 @@
 
     autoconnect: true
     conn_reload: true
+
+    zone: "{{ connection_zone }}"
 
 - name: Connection up ({{ connection_name }})
   community.general.nmcli:

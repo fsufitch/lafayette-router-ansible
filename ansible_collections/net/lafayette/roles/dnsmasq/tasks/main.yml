@@ -34,21 +34,27 @@
     build:
       container_file: "{{ lookup('ansible.builtin.file', 'files/Containerfile') }}"
 
-  register: build_result
+  notify:
+    - "net.lafayette.dnsmasq :: Service updated"
 
-- name: Configure dnsmasq container
+- name: Create dnsmasq container config
   containers.podman.podman_container:
     name: "{{ dnsmasq_container_name }}"
     image: "{{ dnsmasq_image }}"
-    state: present
-    recreate: "{{ build_result.changed }}"
+    state: quadlet
 
-    interactive: true
-    tty: true
-    init: true
+    quadlet_options:
+      - |-
+        [Service]
+        Restart=always
+
+        [Install]
+        WantedBy=default.target
 
     network: host
     hostname: "{{ ansible_hostname }}"
+
+    init: true
 
     cap_add:
       - NET_ADMIN
@@ -58,28 +64,12 @@
     volumes:
       - "{{ dnsmasq_dir }}/conf.d:/etc/dnsmasq.conf.d:z"
       - "{{ dnsmasq_dir }}/var:/var/lib/dnsmasq:rw,z"
-  register: dnsmasq_container_result
 
   notify:
-    - "net.lafayette.dnsmasq :: Restart dnsmasq"
+    - "net.lafayette.dnsmasq :: Service updated"
 
-- name: Create/update dnsmasq Systemd service
-  containers.podman.podman_generate_systemd:
-    name: "{{ dnsmasq_container_name }}"
-    container_prefix: "podman"
-    # Service is effectively: podman-{{ dnsmasq_container_name }}.service
 
-    no_header: true
-    force: true
-    restart_policy: on-failure
-    restart_sec: 10
-    dest: "{{ dnsmasq_dir }}"
-  notify:
-    - "net.lafayette.dnsmasq :: Link Systemd service"
-    - "net.lafayette.dnsmasq :: Reload Systemd"
-    - "net.lafayette.dnsmasq :: Restart dnsmasq"
-
-- name: Configure dnsmasq
+- name: Configure dnsmasq DNS base
   ansible.builtin.template:
     dest: "{{ dnsmasq_dir }}/conf.d/00-dns.conf"
     mode: "0644"
@@ -87,9 +77,9 @@
     group: root
     src: 00-dns.conf.j2
   notify:
-    - "net.lafayette.dnsmasq :: Restart dnsmasq"
+    - "net.lafayette.dnsmasq :: Service updated"
 
-- name: "Create subnet DHCP config files"
+- name: Create subnet DHCP config files
   loop: "{{ dnsmasq_dhcp_subnets }}"
   loop_control:
     loop_var: dnsmasq_dhcp_subnet
@@ -101,4 +91,4 @@
     group: root
     src: 01-dhcp.conf.j2
   notify:
-    - "net.lafayette.dnsmasq :: Restart dnsmasq"
+    - "net.lafayette.dnsmasq :: Service updated"

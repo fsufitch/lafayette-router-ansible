@@ -12,3 +12,4 @@ pihole_reverse_dhcp_cidr: 10.0.0.0/8
 pihole_reverse_dhcp_target:  # 1.2.3.4:5353
 pihole_reverse_dhcp_domain:  # example.com
 pihole_local_ip: # 1.2.3.4
+pihole_listen_ips: []

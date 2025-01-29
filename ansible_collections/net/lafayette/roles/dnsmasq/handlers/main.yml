@@ -1,21 +1,8 @@
 ---
 
-- name: "net.lafayette.dnsmasq :: Link Systemd service"
-  ansible.builtin.file:
-    path: /etc/systemd/system/podman-{{ dnsmasq_container_name }}.service
-    state: link
-    src: "{{ dnsmasq_dir }}/podman-{{ dnsmasq_container_name }}.service"
-  notify:
-    - "net.lafayette.dnsmasq :: Reload Systemd"
-    - "net.lafayette.dnsmasq :: Restart dnsmasq"
-
-- name: "net.lafayette.dnsmasq :: Reload Systemd"
+- name: "net.lafayette.dnsmasq :: Service updated"
   ansible.builtin.systemd:
+    name: "{{ dnsmasq_container_name }}"
     daemon_reload: true
-  notify:
-    - "net.lafayette.dnsmasq :: Restart dnsmasq"
-
-- name: "net.lafayette.dnsmasq :: Restart dnsmasq"
-  ansible.builtin.systemd:
-    name: podman-{{ dnsmasq_container_name }}.service
     state: restarted
+

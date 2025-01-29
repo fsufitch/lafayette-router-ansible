@@ -3,4 +3,4 @@
 - name: "net.lafayette.firewalld :: Reload"
   ansible.builtin.systemd:
     service: firewalld
-    state: reloaded
+    state: restarted

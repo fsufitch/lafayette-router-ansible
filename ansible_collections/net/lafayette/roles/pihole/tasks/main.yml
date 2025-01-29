@@ -26,14 +26,23 @@
   containers.podman.podman_image:
     name: "{{ pihole_image }}"
     state: present
-  register: image_result
+  notify:
+    - "net.lafayette.pihole :: Service updated"
+
 
 - name: Configure Pihole container
   containers.podman.podman_container:
     name: "{{ pihole_container_name }}"
     image: "{{ pihole_image }}"
-    state: present
-    recreate: "{{ image_result.changed or environment_result.changed }}"
+    state: quadlet
+
+    quadlet_options:
+      - |-
+        [Service]
+        Restart=always
+        [Install]
+        WantedBy=default.target
+    hostname: pi.hole
 
     env:
       TZ: "{{ ansible_date_time['tz'] }}"
@@ -54,15 +63,10 @@
       REV_SERVER_TARGET: "{{ pihole_reverse_dhcp_target }}"
       REV_SERVER_CIDR: "{{ pihole_reverse_dhcp_cidr }}"
 
-    interactive: true
-    tty: true
-
-    hostname: pi.hole
-
     ports:
       - "{{ pihole_local_ip }}:{{ pihole_port_http }}:80/tcp"
-      - "{{ pihole_local_ip }}:{{ pihole_port_dns }}:53/udp"
-      - "{{ pihole_local_ip }}:{{ pihole_port_dns }}:53/tcp"
+      - "{{ pihole_port_dns }}:53/udp"
+      - "{{ pihole_port_dns }}:53/tcp"
 
     volumes:
       - "{{ pihole_dir }}/etc-pihole:/etc/pihole:rw,z"
@@ -71,22 +75,9 @@
 
 
   notify:
-    - "net.lafayette.pihole :: Reload Systemd"
-    - "net.lafayette.pihole :: Restart Pihole"
+    - "net.lafayette.pihole :: Service updated"
 
-- name: Create Pihole Systemd service
-  containers.podman.podman_generate_systemd:
-    name: "{{ pihole_container_name }}"
-    container_prefix: "podman"
-    # Service is effectively: podman-{{ pihole_container_name }}.service
-
-    no_header: true
-    force: true
-    restart_policy: on-failure
-    restart_sec: 3
-    dest: "{{ pihole_dir }}"
-
-  notify:
-    - "net.lafayette.pihole :: Link Systemd service"
-    - "net.lafayette.pihole :: Reload Systemd"
-    - "net.lafayette.pihole :: Restart Pihole"
+- name: Remove systemd-resolved (let pihole take over port 53)
+  ansible.builtin.dnf:
+    state: absent
+    name: systemd-resolved

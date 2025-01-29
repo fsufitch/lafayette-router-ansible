@@ -20,8 +20,8 @@
   {% endfor %}
 
   {% for port in (zone.ports if zone.ports is defined else []) %}
-  {% set port_number = port.split('/')[0] %}
-  {% set port_protocol = port.split('/')[1] %}
+  {%- set port_number = port.split('/')[0] -%}
+  {%- set port_protocol = port.split('/')[1] -%}
   <port port="{{ port_number }}" protocol="{{ port_protocol }}"/>
   {% endfor %}
 </zone>
