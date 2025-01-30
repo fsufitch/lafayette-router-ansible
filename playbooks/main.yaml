@@ -9,3 +9,4 @@
     - net.lafayette.networking
     - net.lafayette.dnsmasq
     - net.lafayette.pihole
+    - net.lafayette.wireguard

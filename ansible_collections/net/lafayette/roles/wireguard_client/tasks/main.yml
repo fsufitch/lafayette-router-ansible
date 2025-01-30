@@ -1,0 +1,44 @@
+---
+
+- name: Check if client already exists
+  ansible.builtin.command:
+    cmd: >-
+      {{ golang_gopath | quote }}/bin/wg-vlan export
+        --vlan-config {{ wireguard_dir | quote }}/wg-vlan.yaml
+        --client {{ wireguard_client_name | quote }}
+  register: client_export_exist
+  changed_when: client_export_exist.rc != 0
+  failed_when: (client_export_exist.rc != 0) and ("no such client" not in client_export_exist.stderr)
+
+- name: If client does not exist, create it
+  vars:
+    client_exists: "{{ 'no such client' not in client_export_exist.stderr }}"
+  when: not client_exists
+  ansible.builtin.command:
+    cmd: >-
+      {{ golang_gopath | quote }}/bin/wg-vlan add
+      --vlan-config {{ wireguard_dir | quote }}/wg-vlan.yaml
+      --client-name {{ wireguard_client_name | quote }}
+      --public-key {{ wireguard_client_public_key | quote }}
+
+  register: client_created
+  changed_when: not client_created.rc
+  notify: "net.lafayette.wireguard :: Regenerate"
+
+- name: Get client configuration
+  ansible.builtin.command:
+    cmd: >-
+      {{ golang_gopath | quote }}/bin/wg-vlan export
+        --vlan-config {{ wireguard_dir | quote }}/wg-vlan.yaml
+        --client {{ wireguard_client_name | quote }}
+        --format {{ "qr" if (wireguard_client_qr | lower).startswith("y") else "text" }}
+  changed_when: false
+  failed_when: false
+  register: client_config
+
+  notify: "net.lafayette.wireguard :: Regenerate"
+
+- name: Print client configuration (or failure if relevant)
+  ansible.builtin.pause:
+    prompt: "\n{{ client_config.stderr if client_config.rc else client_config.stdout }}\n\n"
+    seconds: 1

@@ -2,12 +2,13 @@ router:
   hosts:
     marquis:
       # What is ansible actually connecting to?
-      ansible_host: 108.48.43.156
+      ansible_host: home.sufitchi.name
 
       # Common "macro" variables, for reuse and easy changing
       _internet_interface: enp0s7
       _main_interface: enp3s0f0
       _iot_interface: enp3s0f1
+      _wireguard_interface: wg0
       _main_domain: lafayette.lan
       _iot_domain: lafayette.iot
 
@@ -23,6 +24,7 @@ router:
             - 1-65535/udp
           interfaces:
             - "{{ _main_interface }}"
+            - "{{ _wireguard_interface }}"
 
         - name: lafayette-iot
           target: "%%REJECT%%"
@@ -32,6 +34,7 @@ router:
             - ssh
             - dhcp
             - dns
+            - wireguard
           interfaces:
             - "{{ _iot_interface }}"
 
@@ -42,6 +45,7 @@ router:
           services:
             - ssh
             - cockpit
+            - wireguard
           interfaces:
             - "{{ _internet_interface }}"
 
@@ -118,3 +122,9 @@ router:
       pihole_reverse_dhcp_target: "10.1.10.1#5353" # 1.2.3.4:5353
       pihole_reverse_dhcp_domain: "{{ _main_domain }}"
       pihole_local_ip: 10.1.10.1
+
+      golang_gopath: /opt/go
+
+      wireguard_port: 51820
+      wireguard_public_endpoint: home.sufitchi.name
+      wireguard_network: 10.1.20.1/24

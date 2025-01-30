@@ -4,3 +4,48 @@
   ansible.builtin.command:
     cmd: go install github.com/fsufitch/wg-vlan@latest
     creates: "{{ wireguard_wg_vlan_bin }}"
+
+- name: Install Wireguard
+  ansible.builtin.dnf:
+    name: wireguard-tools
+    state: present
+
+- name: Get my public IP
+  community.general.ipify_facts:
+
+- name: Check that Wireguard vlan configuration exists
+  ansible.builtin.stat:
+    path: "{{ wireguard_dir }}/wg-vlan.yaml"
+  register: vlan_stat_result
+
+- name: Initialize non-existent configuration
+  vars:
+    wg_vlan_yaml_exists: "{{ (vlan_stat_result.stat.isreg is defined) and vlan_stat_result.stat.isreg }}"
+  when: not wg_vlan_yaml_exists
+  block:
+    - name: Define new random private key
+      when: "(not wg_vlan_yaml_exists) and (not wireguard_private_key)"
+      ansible.builtin.command:
+        cmd: wg genkey
+      changed_when: true
+      register: wg_genkey_result
+
+    - name: Ensure Wireguard dir
+      ansible.builtin.file:
+        path: "{{ wireguard_dir }}"
+        state: directory
+        mode: ug+rwx,o-rwx
+        owner: root
+
+    - name: Initialize configuration
+      ansible.builtin.command:
+        cmd: >-
+          {{ golang_gopath | quote }}/bin/wg-vlan init
+          --vlan-config {{ wireguard_dir | quote }}/wg-vlan.yaml
+          --network {{ wireguard_network | quote }}
+          --port {{ wireguard_port | quote }}
+          --endpoint {{ wireguard_public_endpoint or ipify_public_ip }}:{{ wireguard_port }}
+          --private-key {{ wireguard_private_key or wg_genkey_result.stdout }}
+        creates: "{{ wireguard_dir }}/wg-vlan.yaml"
+
+  notify: "net.lafayette.wireguard :: Regenerate"

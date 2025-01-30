@@ -1,3 +1,29 @@
-#SPDX-License-Identifier: MIT-0
 ---
-# handlers file for wireguard
+
+- name: Generate wireguard service configuration
+  listen: "net.lafayette.wireguard :: Regenerate"
+  ansible.builtin.command:
+    cmd: >-
+      {{ golang_gopath | quote }}/bin/wg-vlan export --server --vlan-config {{ wireguard_dir | quote }}/wg-vlan.yaml
+  changed_when: false
+  register: wg_config
+
+- name: Write Wireguard service configuration
+  listen: "net.lafayette.wireguard :: Regenerate"
+  ansible.builtin.copy:
+    dest: /etc/wireguard/{{ wireguard_interface_name }}.conf
+    content: "{{ wg_config.stdout }}\n"
+    mode: ug+rw,o+r
+    owner: root
+
+- name: Enable wg-quick service
+  listen: "net.lafayette.wireguard :: Regenerate"
+  ansible.builtin.systemd:
+    name: "wg-quick@{{ wireguard_interface_name }}"
+    enabled: true
+
+- name: Restart wg-quick service
+  listen: "net.lafayette.wireguard :: Regenerate"
+  ansible.builtin.systemd:
+    name: "wg-quick@{{ wireguard_interface_name }}"
+    state: restarted

@@ -1,0 +1,20 @@
+---
+
+- name: Configure a Wireguard client
+  hosts: router
+  become: true
+
+  roles:
+    - net.lafayette.wireguard_client
+
+  vars_prompt:
+    - name: wireguard_client_name
+      prompt: "Client name"
+      private: false
+    - name: wireguard_client_public_key
+      prompt: "Client public key"
+      private: false
+    - name: wireguard_client_qr
+      prompt: "Export QR code? (y/[n])"
+      private: false
+      default: n

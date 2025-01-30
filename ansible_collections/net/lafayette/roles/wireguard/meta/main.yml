@@ -2,3 +2,4 @@
 
 dependencies:
   - net.lafayette.golang
+  - net.lafayette.libdnf
