@@ -1,0 +1,6 @@
+---
+
+- name: Install wg-vlan
+  ansible.builtin.command:
+    cmd: go install github.com/fsufitch/wg-vlan@latest
+    creates: "{{ wireguard_wg_vlan_bin }}"

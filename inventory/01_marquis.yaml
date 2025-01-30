@@ -2,7 +2,7 @@ router:
   hosts:
     marquis:
       # What is ansible actually connecting to?
-      ansible_host: 192.168.1.119
+      ansible_host: 108.48.43.156
 
       # Common "macro" variables, for reuse and easy changing
       _internet_interface: enp0s7

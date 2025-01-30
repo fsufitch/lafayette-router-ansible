@@ -1,0 +1,7 @@
+---
+- name: Set up a Wireguard VLAN
+  hosts: router
+  become: true
+
+  roles:
+    - net.lafayette.wireguard

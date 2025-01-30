@@ -1,0 +1,16 @@
+---
+
+- name: Install Golang
+  ansible.builtin.dnf:
+    name: golang
+    state: present
+
+- name: Set global GOPATH
+  ansible.builtin.lineinfile:
+    path: /etc/environment
+    mode: "0644"
+    owner: root
+    state: present
+    create: true
+    regexp: '^GOPATH=.*$'
+    value: 'GOPATH={{ golang_gopath }}'
