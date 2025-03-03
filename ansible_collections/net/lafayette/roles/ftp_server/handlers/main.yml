@@ -1,0 +1,9 @@
+---
+
+- name: "Reload and restart service"
+  listen:
+    - "net.lafayette.ftp_server :: Service updated"
+  ansible.builtin.systemd:
+    name: "{{ ftp_server_container_name }}"
+    daemon_reload: true
+    state: restarted

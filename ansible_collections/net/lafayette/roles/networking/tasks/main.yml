@@ -1,5 +1,16 @@
 ---
 
+- name: Install NetworkManager
+  ansible.builtin.package:
+    name: "{{ 'network-manager' if ansible_pkg_mgr == 'apt' else 'NetworkManager' }}"
+    state: present
+
+- name: Enable NetworkManager
+  ansible.builtin.systemd:
+    name: NetworkManager
+    state: started
+    enabled: true
+
 - name: Set up system connections
   loop: "{{ networking_connections }}"
   ansible.builtin.include_role:

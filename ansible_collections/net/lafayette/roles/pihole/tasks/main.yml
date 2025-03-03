@@ -78,6 +78,6 @@
     - "net.lafayette.pihole :: Service updated"
 
 - name: Remove systemd-resolved (let pihole take over port 53)
-  ansible.builtin.dnf:
+  ansible.builtin.package:
     state: absent
     name: systemd-resolved

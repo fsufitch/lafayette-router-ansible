@@ -1,7 +1,7 @@
 ---
 
 - name: Ensure Firewalld
-  ansible.builtin.dnf:
+  ansible.builtin.package:
     name: firewalld
     state: present
 

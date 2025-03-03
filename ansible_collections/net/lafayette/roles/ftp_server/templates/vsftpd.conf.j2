@@ -1,0 +1,45 @@
+# See: http://ftp.pasteur.fr/mirrors/centos-vault/3.6/docs/html/rhel-rg-en-3/s1-ftp-vsftpd-conf.html
+
+# Daemon
+listen=YES
+
+# Auth
+anonymous_enable=YES
+local_enable=YES
+ftpd_banner={{ ftp_server_banner if ftp_server_banner else 'Welcome to Monolith FTP.' }}
+
+# Anon user options
+anonymous_enable=YES
+no_anon_password=YES
+anon_root=/ftp
+anon_world_readable_only=YES
+
+# Local user
+local_root=/ftp
+
+# Directory
+# Defaults are OK
+
+# File transfer
+download_enable=YES
+write_enable=YES
+chown_uploads=YES
+chown_username=root
+
+# Allow writeable chroot; safe in a container
+allow_writeable_chroot=YES
+
+# Logging
+syslog_enable=NO
+xferlog_enable=YES
+vsftpd_log_file=/var/log/vsftpd.log
+
+# Network
+port_enable=YES
+listen_port={{ ftp_server_port }}
+connect_from_port_20=NO
+
+pasv_enable=YES
+pasv_address={{ ansible_facts['default_ipv4']['address'] }}
+pasv_min_port={{ ftp_server_pasv_min_port }}
+pasv_max_port={{ ftp_server_pasv_max_port }}

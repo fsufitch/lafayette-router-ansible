@@ -10,3 +10,11 @@
     - net.lafayette.dnsmasq
     - net.lafayette.pihole
     - net.lafayette.wireguard
+
+- name: Set up Lafayette-style media server
+  hosts: mediaserver
+  become: true
+
+  roles:
+    - net.lafayette.networking
+    - net.lafayette.ftp_server

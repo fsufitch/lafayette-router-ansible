@@ -1,5 +1,5 @@
 ---
 - name: Install Podman
-  ansible.builtin.dnf:
+  ansible.builtin.package:
     state: present
     name: podman

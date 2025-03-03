@@ -1,0 +1,18 @@
+---
+mediaserver:
+  hosts:
+    monolith:
+      # What is ansible actually connecting to?
+      ansible_host: monolith
+
+      # Common "macro" variables, for reuse and easy changing
+      _net_interface: enxf8e43b8fa1f9
+
+      # For role: net.lafayette.networking
+      networking_connections:
+        - name: Home Network
+          interface: "{{ _net_interface }}"
+          ip_manual: false
+          zone: ""
+
+      # ...

@@ -1,8 +1,3 @@
-- name: Ensure required tooling
-  ansible.builtin.dnf:
-    name: NetworkManager
-    state: present
-
 - name: Set up automatic (DHCP) connection ({{ connection_name }})
   when: not connection_ip_manual
   community.general.nmcli:

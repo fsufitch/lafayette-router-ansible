@@ -1,0 +1,125 @@
+---
+
+- name: Create ftp server service directory
+  ansible.builtin.file:
+    path: "{{ ftp_server_service_dir }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "ug+rwx,o+rx"
+
+- name: Create vsftpd etc directory
+  ansible.builtin.file:
+    path: "{{ ftp_server_service_dir }}/etc-vsftpd"
+    state: directory
+    owner: root
+    group: root
+    mode: "ug+rwx,o+rx"
+
+- name: Create vsftpd log directory
+  ansible.builtin.file:
+    path: "{{ ftp_server_service_dir }}/log"
+    state: directory
+    owner: root
+    group: root
+    mode: "ug+rwx,o+rx"
+
+- name: Create vsftpd config
+  notify:
+    - "net.lafayette.ftp_server :: Service updated"
+  block:
+    - name: Create vsftpd config file
+      ansible.builtin.template:
+        dest: "{{ ftp_server_service_dir }}/etc-vsftpd/vsftpd.conf"
+        mode: "ug+rw,o+r"
+        owner: root
+        group: root
+        src: vsftpd.conf.j2
+
+    - name: Create vsftpd chroot file
+      ansible.builtin.copy:
+        dest: "{{ ftp_server_service_dir }}/etc-vsftpd/vsftpd.chroot_list"
+        mode: "ug+rw,o+r"
+        owner: root
+        group: root
+        src: files/vsftpd.chroot_list
+
+
+- name: Check ftp storage
+  ansible.builtin.stat:
+    path: "{{ ftp_server_storage }}"
+    follow: false  # if it's a symlink, that's fine
+  register: ftp_server_storage_stat
+
+- name: Initialize ftp storage
+  when: ftp_server_storage_stat.stat.islnk is not defined
+  notify:
+    - "net.lafayette.ftp_server :: Service updated"
+  block:
+    - name: Create ftp storage as directory (no link defined)
+      when: not ftp_server_storage_link_to
+      ansible.builtin.file:
+        path: "{{ ftp_server_storage }}"
+        state: directory
+        owner: root
+        group: root
+        mode: "ug+rwx,o+rx"
+
+    - name: Create ftp storage as symlink
+      when: ftp_server_storage_link_to
+      ansible.builtin.file:
+        path: "{{ ftp_server_storage }}"
+        state: link
+        force: true
+        src: "{{ ftp_server_storage_link_to }}"
+
+
+- name: Build ftp server image
+  when: ftp_server_image_build
+  containers.podman.podman_image:
+    name: "{{ ftp_server_image }}"
+    state: build
+    force: true
+    build:
+      container_file: "{{ lookup('ansible.builtin.file', 'files/Containerfile') }}"
+
+  notify:
+    - "net.lafayette.ftp_server :: Service updated"
+
+# - name: Discover PASV address
+#   ansible.builtin.debug:
+#     msg: |-
+#       hello {{ query('community.general.dig', ansible_hostname) }}
+
+- name: Create ftp server container config
+  containers.podman.podman_container:
+    name: "{{ ftp_server_container_name }}"
+    image: "{{ ftp_server_image }}"
+    state: quadlet
+
+    quadlet_options:
+      - |-
+        [Service]
+        Restart=always
+
+        [Install]
+        WantedBy=default.target
+
+    init: true
+    tty: true
+
+    hostname: "{{ ansible_hostname }}"
+    network: bridge
+    ports:
+      - "21:21/tcp"
+      - "{{ ftp_server_pasv_min_port }}-{{ ftp_server_pasv_max_port }}:{{ ftp_server_pasv_min_port }}-{{ ftp_server_pasv_max_port }}/tcp" 
+
+    userns: "keep-id"
+    volumes:
+      - "{{ ftp_server_service_dir }}/etc-vsftpd:/etc/vsftpd:z"
+      - "{{ ftp_server_service_dir }}/log:/var/log:rw,z"
+      - "{{ ftp_server_storage }}:/ftp:rw,z"
+ 
+
+  notify:
+    - "net.lafayette.ftp_server :: Service updated"

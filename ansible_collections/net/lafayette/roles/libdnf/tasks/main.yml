@@ -1,6 +1,7 @@
 ---
 
 - name: Install libdnf5 (required for dnf tasks)
+  when: "ansible_pkg_mgr == 'dnf' or ansible_pkg_mgr == 'yum'"
   ansible.builtin.command:
     cmd: dnf install -y python3-libdnf5
 

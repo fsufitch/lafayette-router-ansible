@@ -1,0 +1,9 @@
+FROM alpine:latest
+
+RUN apk add vsftpd net-tools
+
+RUN mkdir -p /ftp && \
+    adduser -h /ftp -D -H -u 2101 ftpanonymous && \
+    adduser -h /ftp -D -H -u 2102 ftpuser
+
+CMD vsftpd /etc/vsftpd/vsftpd.conf

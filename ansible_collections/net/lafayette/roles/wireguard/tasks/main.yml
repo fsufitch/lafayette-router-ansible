@@ -6,7 +6,7 @@
     creates: "{{ wireguard_wg_vlan_bin }}"
 
 - name: Install Wireguard
-  ansible.builtin.dnf:
+  ansible.builtin.package:
     name: wireguard-tools
     state: present
 
