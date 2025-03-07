@@ -1,0 +1,78 @@
+# Sample ProFTPD configuration file
+
+# The name of the FTP server.
+ServerName                      "{{ ftp_server_name }}"
+
+# The type of server, standalone means it runs as a standalone daemon.
+ServerType                      standalone
+
+# Indicates if this is the default server.
+DefaultServer                   on
+
+# Defend against DDoS
+MaxInstances                    30
+
+# The port on which the FTP server will listen.
+Port                            21
+
+# The umask value to set for newly created files and directories.
+Umask                           022
+
+# The maximum number of child processes to handle concurrent connections.
+MaxInstances                    30
+
+# The user under which the server will run.
+User                            root
+
+# The group under which the server will run.
+Group                           root
+
+# Jail users to their homedir
+DefaultRoot ~
+
+# Allow login of users with a shell of /sbin/nologin.
+RequireValidShell               off
+
+# PASV configuration
+MasqueradeAddress           {{ ansible_default_ipv4.address }}
+PassivePorts {{ ftp_server_pasv_min_port }} {{ ftp_server_pasv_max_port }}
+AllowStoreRestart on
+AllowRetrieveRestart on
+
+# Restrict the use of the SITE CHMOD command.
+<Limit SITE_CHMOD>
+    # Deny all SITE CHMOD commands.
+    DenyAll
+</Limit>
+
+# Configuration for anonymous FTP access.
+<Anonymous "/mnt/ftp">
+    # The user for anonymous access.
+    User                          ftp
+
+    # The group for anonymous access.
+    Group                         ftp
+
+    # Allow login with "anonymous" as well as "ftp".
+    UserAlias                     anonymous ftp
+
+    # The maximum number of anonymous logins.
+    MaxClients                    10
+
+    # Restrict write access in the anonymous chroot.
+    <Limit WRITE>
+        # Deny all write operations.
+        DenyAll
+    </Limit>
+</Anonymous>
+
+# Authentication configuration
+AuthUserFile                    /mnt/config/passwd
+
+
+# Configuration for the root directory.
+<Directory "/mnt/ftp">
+    # Allow files to be overwritten.
+    AllowOverwrite                on
+
+</Directory>

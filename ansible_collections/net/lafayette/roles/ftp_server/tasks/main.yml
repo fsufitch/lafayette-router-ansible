@@ -8,42 +8,31 @@
     group: root
     mode: "ug+rwx,o+rx"
 
-- name: Create vsftpd etc directory
+- name: Create config directory
   ansible.builtin.file:
-    path: "{{ ftp_server_service_dir }}/etc-vsftpd"
+    path: "{{ ftp_server_service_dir }}/config"
     state: directory
     owner: root
     group: root
     mode: "ug+rwx,o+rx"
 
-- name: Create vsftpd log directory
-  ansible.builtin.file:
-    path: "{{ ftp_server_service_dir }}/log"
-    state: directory
-    owner: root
-    group: root
-    mode: "ug+rwx,o+rx"
-
-- name: Create vsftpd config
+- name: Create proftpd config file
   notify:
     - "net.lafayette.ftp_server :: Service updated"
-  block:
-    - name: Create vsftpd config file
-      ansible.builtin.template:
-        dest: "{{ ftp_server_service_dir }}/etc-vsftpd/vsftpd.conf"
-        mode: "ug+rw,o+r"
-        owner: root
-        group: root
-        src: vsftpd.conf.j2
+  ansible.builtin.template:
+    dest: "{{ ftp_server_service_dir }}/config/proftpd.conf"
+    mode: "ug+rw,o+r"
+    owner: root
+    group: root
+    src: proftpd.conf.j2
 
-    - name: Create vsftpd chroot file
-      ansible.builtin.copy:
-        dest: "{{ ftp_server_service_dir }}/etc-vsftpd/vsftpd.chroot_list"
-        mode: "ug+rw,o+r"
-        owner: root
-        group: root
-        src: files/vsftpd.chroot_list
-
+- name: Touch proftpd passwd file 
+  ansible.builtin.file:
+    dest: "{{ ftp_server_service_dir }}/config/passwd"
+    state: touch
+    owner: root
+    group: root
+    mode: "ug+rw"
 
 - name: Check ftp storage
   ansible.builtin.stat:
@@ -82,6 +71,17 @@
     force: true
     build:
       container_file: "{{ lookup('ansible.builtin.file', 'files/Containerfile') }}"
+      target: server
+
+- name: Build ftp passwd image
+  when: ftp_server_image_build
+  containers.podman.podman_image:
+    name: "{{ ftp_server_image }}-passwd"
+    state: build
+    force: true
+    build:
+      container_file: "{{ lookup('ansible.builtin.file', 'files/Containerfile') }}"
+      target: passwd
 
   notify:
     - "net.lafayette.ftp_server :: Service updated"
@@ -91,7 +91,19 @@
 #     msg: |-
 #       hello {{ query('community.general.dig', ansible_hostname) }}
 
+- name: Create passwd administration script
+  notify:
+    - "net.lafayette.ftp_server :: Service updated"
+  ansible.builtin.template:
+    dest: "{{ ftp_server_service_dir }}/passwd.sh"
+    mode: "ug+rwx,o+rx"
+    owner: root
+    group: root
+    src: passwd.sh.j2
+
 - name: Create ftp server container config
+  notify:
+    - "net.lafayette.ftp_server :: Service updated"
   containers.podman.podman_container:
     name: "{{ ftp_server_container_name }}"
     image: "{{ ftp_server_image }}"
@@ -112,14 +124,12 @@
     network: bridge
     ports:
       - "21:21/tcp"
-      - "{{ ftp_server_pasv_min_port }}-{{ ftp_server_pasv_max_port }}:{{ ftp_server_pasv_min_port }}-{{ ftp_server_pasv_max_port }}/tcp" 
+      - "{{ ftp_server_pasv_min_port }}-{{ ftp_server_pasv_max_port }}:{{ ftp_server_pasv_min_port }}-{{ ftp_server_pasv_max_port }}/tcp"
 
     userns: "keep-id"
-    volumes:
-      - "{{ ftp_server_service_dir }}/etc-vsftpd:/etc/vsftpd:z"
-      - "{{ ftp_server_service_dir }}/log:/var/log:rw,z"
-      - "{{ ftp_server_storage }}:/ftp:rw,z"
- 
+    cap_add:
+      - CAP_SYS_ADMIN
 
-  notify:
-    - "net.lafayette.ftp_server :: Service updated"
+    volumes:
+      - "{{ ftp_server_service_dir }}/config:/mnt/config:ro,z"
+      - "{{ ftp_server_storage }}:/mnt/ftp:rw,z"

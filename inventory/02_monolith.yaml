@@ -14,5 +14,7 @@ mediaserver:
           interface: "{{ _net_interface }}"
           ip_manual: false
           zone: ""
-
       # ...
+
+      ftp_user: "ftpuser"
+      ftp_dir: "/mnt/monolith/ftp"

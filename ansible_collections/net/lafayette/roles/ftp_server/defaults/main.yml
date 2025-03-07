@@ -7,10 +7,10 @@ ftp_server_listen_addr: 0.0.0.0
 ftp_server_port: 21
 
 ftp_server_service_dir: /opt/lafayette/ftp_server
-ftp_server_storage: /opt/lafayette/ftp_server/storage
-ftp_server_storage_link_to: /mnt/ftp_server_storage
+ftp_server_storage: /mnt/ftp_server_storage
+# ftp_server_storage_link_to: /mnt/ftp_server_storage
 
-ftp_server_banner: Welcome to Lafayette FTP
+ftp_server_name: Lafayette FTP
 
 ftp_server_pasv_min_port: 21100
 ftp_server_pasv_max_port: 21199

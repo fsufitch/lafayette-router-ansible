@@ -1,0 +1,11 @@
+#!/bin/bash
+
+SERVICE_DIR={{ ftp_server_service_dir | quote }}
+
+exec podman run \
+    --rm \
+    --interactive \
+    --tty \
+    --volume "${SERVICE_DIR}/config:/mnt/config:z,rw" \
+    "{{ ftp_server_image }}-passwd" \
+    $@
