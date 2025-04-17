@@ -99,13 +99,13 @@ router:
           ignore_names: []
 
           force_hosts:
-            - hostname: wap1
-              mac: 80:cc:9c:47:76:4a
-              ipv4: 10.1.10.101
-
-            - hostname: wap2
+            - hostname: wlan1
               mac: 80:cc:9c:47:76:4a
               ipv4: 10.1.10.102
+
+            - hostname: wlan2
+              mac: 80:cc:9c:48:4e:44 
+              ipv4: 10.1.10.103
 
         - name: iot
           domain: lafayette.iot
