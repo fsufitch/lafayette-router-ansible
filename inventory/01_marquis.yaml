@@ -105,7 +105,7 @@ router:
 
             - hostname: wlan2
               mac: 80:cc:9c:48:4e:44 
-              ipv4: 10.1.10.103
+              ipv4: 10.1.10.104
 
         - name: iot
           domain: lafayette.iot
