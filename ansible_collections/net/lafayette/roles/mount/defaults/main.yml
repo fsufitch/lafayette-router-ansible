@@ -1,0 +1,4 @@
+mount_source: ""
+mount_destination: ""
+mount_fstype: ""
+mount_options: "rw,noatime,nofail"

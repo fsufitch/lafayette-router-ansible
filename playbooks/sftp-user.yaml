@@ -1,0 +1,23 @@
+---
+
+- name: Configure a sftp write-capable user
+  hosts: mediaserver
+  become: true
+
+  roles:
+    - role: net.lafayette.sftp_server_user
+
+  vars:
+    sftp_server_user_home: "{{ storage_dir }}"
+    sftp_server_user_group: "{{ sftp_write_group }}"
+
+  vars_prompt:
+    - name: sftp_server_user_name
+      prompt: "SFTP user name"
+      private: false
+
+    - name: sftp_server_user_password
+      prompt: "SFTP user password (set empty to leave unchanged)"
+      private: true
+      unsafe: true
+      default: ""

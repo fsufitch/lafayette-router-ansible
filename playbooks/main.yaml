@@ -16,5 +16,14 @@
   become: true
 
   roles:
-    # - net.lafayette.networking
-    - net.lafayette.ftp_server
+    - role: net.lafayette.mount
+      mount_source: "{{ storage_mount_src }}"
+      mount_destination: "{{ storage_dir }}"
+      mount_fstype: "{{ storage_mount_fstype }}"
+
+    - role: net.lafayette.sftp_server
+      sftp_server_storage: "{{ storage_dir }}"
+      sftp_server_group: "{{ sftp_write_group }}"
+      sftp_server_readonly_user: "{{ sftp_readonly_user }}"
+      sftp_server_readonly_password: "{{ sftp_readonly_password }}"
+      sftp_server_support_sshrsa: "{{ sshd_support_sshrsa }}"

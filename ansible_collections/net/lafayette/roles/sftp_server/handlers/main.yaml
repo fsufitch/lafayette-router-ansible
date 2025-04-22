@@ -1,0 +1,8 @@
+---
+
+- name: Restart sshd
+  listen:
+    - "net.lafayette.sftp_server :: sshd_config updated"
+  ansible.builtin.systemd:
+    name: sshd
+    state: reloaded

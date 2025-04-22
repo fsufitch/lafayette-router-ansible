@@ -1,0 +1,5 @@
+sftp_server_user_prefix: "sftp-"
+sftp_server_user_name: ""
+sftp_server_user_password: ""
+sftp_server_user_group: ""
+sftp_server_user_home: "{{ sftp_server_storage }}"

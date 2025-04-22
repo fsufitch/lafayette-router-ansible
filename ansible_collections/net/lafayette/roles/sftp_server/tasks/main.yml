@@ -1,0 +1,68 @@
+---
+
+- name: Install OpenSSH server
+  ansible.builtin.package:
+    name: openssh-server
+    state: present
+
+- name: Use internal sftp subsystem
+  ansible.builtin.lineinfile:
+    path: /etc/ssh/sshd_config.d/01-internal-sftp.conf
+    state: present
+    line: "Subsystem sftp internal-sftp"
+    create: true
+    owner: root
+    group: root
+    mode: "0644"
+  notify:
+    - "net.lafayette.sftp_server :: sshd_config updated"
+
+- name: Add support for old crappy algorithms
+  # XXX: This is necessary in order to be compatible with VLC on the Nvidia SHIELD; optimally, this ought to be removed
+  when: sftp_server_support_sshrsa
+  ansible.builtin.lineinfile:
+    path: /etc/ssh/sshd_config.d/02-ssh-rsa.conf
+    line: |-
+      HostKeyAlgorithms +ssh-rsa
+      PubkeyAcceptedAlgorithms +ssh-rsa
+    state: present
+    create: true
+    owner: root
+    group: root
+    mode: "0644"
+  notify:
+    - "net.lafayette.sftp_server :: sshd_config updated"
+
+- name: Create sftp server service directory
+  ansible.builtin.file:
+    path: "{{ sftp_server_service_dir }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "ug+rwx,o+rx"
+
+- name: Create sftp owner group
+  ansible.builtin.group:
+    name: "{{ sftp_server_group }}"
+    state: present
+
+- name: Check state of sftp server storage
+  ansible.builtin.stat:
+    path: "{{ sftp_server_storage }}"
+    follow: true
+  register: sftp_server_storage_stat
+
+- name: Check storage directory existence
+  when: not sftp_server_storage_stat.stat.isdir
+  ansible.builtin.fail:
+    msg: "SFTP server storage directory {{ sftp_server_storage }} is invalid. Please create it or define a symlink."
+
+- name: Create sftp readonly user
+  ansible.builtin.user:
+    name: "{{ sftp_readonly_user }}"
+    password: "{{ sftp_server_readonly_password | password_hash('sha512') }}"
+    comment: "sftp readonly user"
+    shell: /sbin/nologin
+    create_home: false
+    home: "{{ sftp_server_storage }}"
+  when: sftp_readonly_user is defined and sftp_readonly_user != ""

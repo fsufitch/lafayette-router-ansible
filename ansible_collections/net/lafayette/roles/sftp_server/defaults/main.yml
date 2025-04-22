@@ -1,0 +1,8 @@
+sftp_server_service_dir: "/opt/lafayette/sftp_server"
+sftp_server_storage: "{{ sftp_server_service_dir }}/local_storage"
+sftp_server_group: "lafayette-sftp-write"
+
+sftp_server_readonly_user: ""
+sftp_server_readonly_password: ""
+
+sftp_server_support_sshrsa: false

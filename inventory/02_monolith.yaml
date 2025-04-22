@@ -5,16 +5,13 @@ mediaserver:
       # What is ansible actually connecting to?
       ansible_host: monolith
 
-      # Common "macro" variables, for reuse and easy changing
-      _net_interface: enxf8e43b8fa1f9
+      storage_dir: "/mnt/monolith"
+      storage_mount_src: "UUID=162b7cb7-d108-496c-8864-4092695ac8c2"
+      storage_mount_fstype: "" # guess
 
-      # For role: net.lafayette.networking
-      networking_connections:
-        - name: Home Network
-          interface: "{{ _net_interface }}"
-          ip_manual: false
-          zone: ""
-      # ...
+      sftp_readonly_user: "monolith"
+      sftp_readonly_password: "monolith"
+      sftp_write_group: "monolith-sftp-write"
 
-      ftp_user: "ftpuser"
-      ftp_dir: "/mnt/monolith/ftp"
+      # XXX: This is only necessary because VLC on Nvidia SHIELD sucks
+      sshd_support_sshrsa: true

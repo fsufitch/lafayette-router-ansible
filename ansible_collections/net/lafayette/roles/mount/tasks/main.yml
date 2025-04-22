@@ -1,0 +1,11 @@
+---
+
+- name: Create mount point
+  ansible.posix.mount:
+    state: present
+    src: "{{ mount_source }}"
+    path: "{{ mount_destination }}"
+    fstype: "{{ mount_fstype }}"
+    opts: "{{ mount_options }}"
+    dump: 0
+    passno: 0

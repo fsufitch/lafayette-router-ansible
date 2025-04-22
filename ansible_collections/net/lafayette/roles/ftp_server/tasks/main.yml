@@ -26,7 +26,7 @@
     group: root
     src: proftpd.conf.j2
 
-- name: Touch proftpd passwd file 
+- name: Touch proftpd passwd file
   ansible.builtin.file:
     dest: "{{ ftp_server_service_dir }}/config/passwd"
     state: touch

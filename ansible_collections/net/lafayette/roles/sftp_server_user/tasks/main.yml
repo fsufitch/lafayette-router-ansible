@@ -1,0 +1,31 @@
+---
+
+- name: Fail if the sftp prefix is missing
+  ansible.builtin.fail:
+    msg: "The sftp user should start with the prefix 'sftp-'."
+  when: sftp_user.user | regex_search('^sftp-') is not defined
+
+- name: Check if the sftp user exists
+  ansible.builtin.command: id -u "{{ sftp_user }}"
+  register: sftp_user_check
+  ignore_errors: true
+  changed_when: false
+
+- name: Create the sftp user
+  when: sftp_user_check.rc != 0
+  ansible.builtin.user:
+    state: present
+    name: "{{ sftp_user }}"
+    group: "{{ sftp_server_group }}"
+    comment: "sftp user"
+    shell: /sbin/nologin
+    system: true
+    create_home: false
+    home: "{{ sftp_server_storage }}"
+
+- name: Set the password for the sftp user
+  when: sftp_user_password.password is not none and sftp_user_password.password != ""
+  ansible.builtin.user:
+    name: "{{ sftp_user }}"
+    password: "{{ sftp_user_password.password | password_hash('sha512') }}"
+    update_password: always

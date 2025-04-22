@@ -5,4 +5,3 @@
     name: "{{ dnsmasq_container_name }}"
     daemon_reload: true
     state: restarted
-
