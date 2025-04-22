@@ -1,5 +1,14 @@
 ---
 
+- name: Check valid inputs
+  ansible.builtin.assert:
+    that:
+      - mount_source is defined
+      - mount_source != ""
+      - mount_destination is defined
+      - mount_destination != ""
+    fail_msg: "Mount destination must be defined and not empty."
+
 - name: Create mount point
   ansible.posix.mount:
     state: present

@@ -1,0 +1,13 @@
+---
+
+samba_server_image: docker.io/dperson/samba
+samba_server_container_name: lafayette-samba
+
+samba_server_domain_name: SAMBA
+samba_server_workgroup: WORKGROUP
+samba_server_share_name: samba
+
+samba_server_storage: ""
+
+samba_server_guest_user: guest
+samba_server_guest_password: guest

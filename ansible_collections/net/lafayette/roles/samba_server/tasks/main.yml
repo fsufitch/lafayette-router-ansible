@@ -1,0 +1,48 @@
+---
+
+- name: Pull Samba image
+  containers.podman.podman_image:
+    name: "{{ samba_server_image }}"
+    tag: latest
+    pull: true
+  register: samba_image
+
+- name: Check state of Samba server storage
+  ansible.builtin.stat:
+    path: "{{ samba_server_storage }}"
+    follow: true
+  register: samba_server_storage_stat
+
+- name: Check storage directory existence
+  when: not samba_server_storage_stat.stat.isdir
+  ansible.builtin.fail:
+    msg: "Samba server storage directory {{ samba_server_storage }} is invalid. Please create it or define a symlink."
+
+- name: Configure Samba container
+  containers.podman.podman_container:
+    name: "{{ samba_server_container_name }}"
+    image: "{{ samba_server_image }}"
+    state: quadlet
+    hostname: "{{ samba_server_domain_name }}"
+
+    network: host
+
+    quadlet_options:
+      - |-
+        [Service]
+        Restart=always
+        [Install]
+        WantedBy=default.target
+
+    env:
+      NMBD: 1
+      RECYCLE: 0
+      WORKGROUP: "{{ samba_server_workgroup }}"
+      USER: "{{ samba_server_guest_user }};{{ samba_server_guest_password }}"
+      SHARE: "{{ samba_server_share_name }};/files;yes;yes;yes;{{ samba_server_guest_user }};none;none;Anonymous read-only share"
+
+    volumes:
+      - "{{ samba_server_storage }}:/files:ro,z"
+
+  notify:
+    - "net.lafayette.samba :: Service updated"

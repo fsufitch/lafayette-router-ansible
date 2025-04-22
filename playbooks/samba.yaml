@@ -1,0 +1,7 @@
+- name: Configure a Samba server
+  hosts: mediaserver
+  become: true
+
+  roles:
+    - role: net.lafayette.samba_server
+      samba_server_storage: "{{ storage_dir }}"

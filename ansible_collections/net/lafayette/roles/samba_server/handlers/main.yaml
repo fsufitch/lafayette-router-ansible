@@ -1,0 +1,9 @@
+---
+
+- name: Restart Samba server
+  listen:
+    - "net.lafayette.samba :: Service updated"
+  ansible.builtin.systemd:
+    name: "{{ samba_server_container_name }}"
+    daemon_reload: true
+    state: restarted

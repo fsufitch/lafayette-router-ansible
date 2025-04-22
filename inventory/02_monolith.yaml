@@ -15,3 +15,9 @@ mediaserver:
 
       # XXX: This is only necessary because VLC on Nvidia SHIELD sucks
       sshd_support_sshrsa: true
+
+      samba_server_domain_name: MONOLITH
+      samba_server_workgroup: WORKGROUP
+      samba_server_share_name: monolith
+
+      samba_server_storage: "{{ storage_dir }}"
