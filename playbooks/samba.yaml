@@ -3,5 +3,4 @@
   become: true
 
   roles:
-    - role: net.lafayette.samba_server
-      samba_server_storage: "{{ storage_dir }}"
+    - net.lafayette.samba_server
