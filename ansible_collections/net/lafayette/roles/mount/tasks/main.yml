@@ -7,7 +7,9 @@
       - mount_source != ""
       - mount_destination is defined
       - mount_destination != ""
-    fail_msg: "Mount destination must be defined and not empty."
+      - mount_fstype is defined
+      - mount_fstype != ""
+    fail_msg: "Mount arguments are invalid. mount_source={{ mount_source }}, mount_destination={{ mount_destination }}, mount_fstype={{ mount_fstype }}"
 
 - name: Create mount point
   ansible.posix.mount:
