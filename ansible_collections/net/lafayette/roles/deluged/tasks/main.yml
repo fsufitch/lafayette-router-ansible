@@ -1,0 +1,135 @@
+---
+
+- name: Ensure valid arguments
+  ansible.builtin.assert:
+    that:
+      - deluged_storage_mount_path is defined
+      - deluged_storage_mount_path != ""
+
+    fail_msg: |-
+      Arguments for the role are not valid:
+      - deluged_storage_mount_path={{ deluged_storage_mount_path }}
+
+- name: Create deluged service directory
+  ansible.builtin.file:
+    state: directory
+    path: "{{ deluged_service_dir }}"
+    mode: '0750'
+    owner: root
+    group: root
+  notify: "net.lafayette.deluged :: Service updated"
+
+- name: Build deluged image
+  when: deluged_image_build
+  containers.podman.podman_image:
+    name: "{{ deluged_image }}"
+    state: build
+    force: true
+    build:
+      container_file: "{{ lookup('ansible.builtin.file', 'files/Containerfile') }}"
+  notify: "net.lafayette.deluged :: Service updated"
+
+- name: Create deluged network
+  containers.podman.podman_network:
+    name: "{{ deluged_network_name }}"
+    state: quadlet
+    driver: bridge
+  notify: "net.lafayette.deluged :: Network updated"
+
+- name: Create deluged pod config
+  containers.podman.podman_pod:
+    name: "{{ deluged_pod_name }}"
+    state: quadlet
+    network:
+      - "{{ deluged_network_name }}"
+
+    ports:
+      - "{{ deluged_web_port }}:8112"
+      - "{{ deluged_daemon_port }}:58846"
+
+    restart_policy: always
+
+    quadlet_options:
+      - |-
+        [Service]
+        Restart=always
+
+        [Install]
+        WantedBy=default.target
+  notify: "net.lafayette.deluged :: Service updated"
+
+- name: Create deluged config directory
+  ansible.builtin.file:
+    state: directory
+    path: "{{ deluged_service_dir }}/config"
+    mode: '0750'
+    owner: root
+    group: root
+  notify:
+    - "net.lafayette.deluged :: Password reminder"
+    - "net.lafayette.deluged :: Service updated"
+
+- name: Create deluged container config
+  containers.podman.podman_container:
+    name: "{{ deluged_container_name }}"
+    image: "{{ deluged_image }}"
+    state: quadlet
+
+    pod: "{{ deluged_pod_name }}.pod" # requires a reference to the pod quadlet file
+
+    volumes:
+      - "{{ deluged_storage_mount_path }}:/mnt/storage:Z"
+      - "{{ deluged_service_dir }}/config:/mnt/config:Z"
+
+  notify: "net.lafayette.deluged :: Service updated"
+
+- name: Pull deluged wireguard image
+  containers.podman.podman_image:
+    name: docker.io/procustodibus/wireguard
+    state: present
+    pull: true
+    force: true
+  notify: "net.lafayette.deluged :: Service updated"
+
+- name: Create deluged wireguard config directory
+  ansible.builtin.file:
+    state: directory
+    path: "{{ deluged_service_dir }}/wireguard"
+    mode: '0750'
+    owner: root
+    group: root
+
+- name: Check if wireguard configs already exist
+  ansible.builtin.find:
+    paths: "{{ deluged_service_dir }}/wireguard"
+    recurse: true
+    patterns: "*.conf"
+  register: wireguard_config_files
+  changed_when: not wireguard_config_files.matched
+  notify:
+    - "net.lafayette.deluged :: Wireguard default config"
+    - "net.lafayette.deluged :: Service updated"
+
+- name: Create deluged wireguard container config
+  containers.podman.podman_container:
+    # Made using: https://www.procustodibus.com/blog/2021/11/wireguard-containers/
+    name: "{{ deluged_wireguard_container_name }}"
+    image: docker.io/procustodibus/wireguard
+    state: quadlet
+
+    pod: "{{ deluged_pod_name }}.pod" # requires a reference to the pod quadlet file
+
+    volumes:
+      - "{{ deluged_service_dir }}/wireguard:/etc/wireguard:Z"
+
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+
+    sysctl:
+      net.ipv4.conf.all.forwarding: 1
+
+    privileged: true
+
+
+  notify: "net.lafayette.deluged :: Service updated"

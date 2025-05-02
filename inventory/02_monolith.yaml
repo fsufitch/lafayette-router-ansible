@@ -20,3 +20,5 @@ mediaserver:
       samba_server_workgroup: WORKGROUP
       samba_server_share_name: monolith
       samba_server_storage: "{{ storage_dir }}"
+
+      deluged_storage_mount_path: "{{ storage_dir }}"

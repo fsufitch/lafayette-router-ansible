@@ -29,3 +29,5 @@
       sftp_server_support_sshrsa: "{{ sshd_support_sshrsa }}"
 
     - role: net.lafayette.samba_server
+
+    - role: net.lafayette.deluged

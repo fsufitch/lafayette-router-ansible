@@ -1,0 +1,8 @@
+---
+
+- name: Configure a Deluge server
+  hosts: mediaserver
+  become: true
+
+  roles:
+    - net.lafayette.deluged

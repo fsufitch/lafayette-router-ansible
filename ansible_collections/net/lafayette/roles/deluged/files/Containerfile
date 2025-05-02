@@ -1,0 +1,10 @@
+FROM docker.io/debian:testing-slim
+
+RUN apt-get update && \
+    apt-get upgrade -y && \
+    apt-get install -y --no-install-recommends \
+    deluge-web deluged geoip-bin geoip-database
+
+# EXPOSE 8112 58846
+
+CMD [ "deluge-web", "--do-not-daemonize", "--config", "/mnt/config" ]

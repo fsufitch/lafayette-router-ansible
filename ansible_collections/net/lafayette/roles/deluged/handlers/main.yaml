@@ -1,0 +1,39 @@
+---
+
+- name: Remind to change web UI password
+  listen:
+    - "net.lafayette.deluged :: Password reminder"
+  ansible.builtin.debug:
+    msg: "Remember to change the web UI password in the config file."
+
+
+- name: Create default wg0 config
+  listen:
+    - "net.lafayette.deluged :: Wireguard default config"
+  ansible.builtin.copy:
+    src: "files/wg-default.conf"
+    dest: "{{ deluged_service_dir }}/wireguard/wg0.conf"
+    mode: '0640'
+    owner: root
+    group: root
+
+- name: Tell the user to update the wg0 config
+  listen:
+    - "net.lafayette.deluged :: Wireguard default config"
+  ansible.builtin.debug:
+    msg: "Please update the wg0.conf file with your own settings."
+
+- name: Podman network updated
+  listen:
+    - "net.lafayette.deluged :: Network updated"
+  ansible.builtin.systemd:
+    name: "{{ deluged_network_name }}-network"
+    daemon_reload: true
+    state: restarted
+  notify: "net.lafayette.deluged :: Service updated"
+
+- name: "net.lafayette.deluged :: Service updated"
+  ansible.builtin.systemd:
+    name: "{{ deluged_pod_name }}-pod"
+    daemon_reload: true
+    state: restarted

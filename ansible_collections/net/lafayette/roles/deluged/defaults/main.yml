@@ -1,0 +1,20 @@
+---
+
+deluged_service_dir: /opt/lafayette/deluged
+
+deluged_image: localhost/lafayette-deluged:latest
+deluged_image_build: true
+
+deluged_wireguard_image: localhost/lafayette-deluged-wireguard:latest
+deluged_wireguard_image_build: true
+
+deluged_pod_name: lafayette-deluged
+deluged_network_name: lafayette-deluged
+
+deluged_container_name: lafayette-deluged-deluged
+deluged_storage_mount_path: ""
+
+deluged_wireguard_container_name: lafayette-deluged-wireguard
+
+deluged_web_port: 8112
+deluged_daemon_port: 58846
