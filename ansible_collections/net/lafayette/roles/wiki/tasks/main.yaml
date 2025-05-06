@@ -1,0 +1,101 @@
+---
+
+- name: Create wiki service directories
+  loop:
+    - "{{ wiki_dir }}"
+    - "{{ wiki_storage_dir }}"
+    - "{{ wiki_storage_dir }}/postgres"
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    mode: ug+rwx,o-rwx
+    owner: root
+    group: root
+  notify: "net.lafayette.nginx :: Service updated"
+
+
+- name: Pull wiki image
+  containers.podman.podman_image:
+    name: ghcr.io/requarks/wiki
+    tag: 2
+
+- name: Create wiki pod
+  containers.podman.podman_pod:
+    name: "{{ wiki_pod_name }}"
+    state: quadlet
+
+    network: bridge
+    publish:
+      - "{{ wiki_port }}:3000"
+
+    quadlet_options:
+      - |-
+        [Service]
+        Restart=always
+
+        [Install]
+        WantedBy=multi-user.target
+  notify: "net.lafayette.wiki :: Pod updated"
+
+- name: Create postgres container
+  containers.podman.podman_container:
+    name: "{{ wiki_db_container_name }}"
+    image: docker.io/postgres:15-alpine
+    state: quadlet
+
+    pod: "{{ wiki_pod_name }}.pod"
+
+    env:
+      POSTGRES_USER: wiki
+      POSTGRES_PASSWORD: wiki
+      POSTGRES_DB: wiki
+
+    volumes:
+      - "{{ wiki_storage_dir }}/postgres:/var/lib/postgresql/data:Z"
+
+    quadlet_options:
+      - |-
+        [Service]
+        Restart=always
+
+        [Install]
+        WantedBy=multi-user.target
+
+  notify: "net.lafayette.wiki :: Pod updated"
+
+- name: Create wiki container
+  containers.podman.podman_container:
+    name: "{{ wiki_main_container_name }}"
+    image: ghcr.io/requarks/wiki:2
+    state: quadlet
+
+    pod: "{{ wiki_pod_name }}.pod"
+
+    env:
+      DB_TYPE: postgres
+      DB_HOST: "{{ wiki_db_container_name }}"
+      DB_PORT: 5432
+      DB_USER: wiki
+      DB_PASS: wiki
+      DB_NAME: wiki
+
+    quadlet_options:
+      - |-
+        [Service]
+        Restart=always
+
+        [Install]
+        WantedBy=multi-user.target
+        Wants={{ wiki_db_container_name }}.service
+
+  notify: "net.lafayette.wiki :: Pod updated"
+
+- name: Create nginx drop-in file
+  when: wiki_nginx_dropin | default(false)
+  ansible.builtin.template:
+    src: nginx.conf.j2
+    dest: "{{ nginx_dir }}/conf.d/{{ wiki_nginx_dropin_filename }}"
+    mode: ug+rw,o-rw
+    owner: root
+    group: root
+  notify: "net.lafayette.nginx :: Service updated"

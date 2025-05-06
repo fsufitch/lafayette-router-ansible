@@ -1,0 +1,5 @@
+---
+
+- name: Router configuration complete
+  ansible.builtin.debug:
+    msg: "Router configuration complete"

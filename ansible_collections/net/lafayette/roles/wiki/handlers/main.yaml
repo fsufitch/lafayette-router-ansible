@@ -1,0 +1,10 @@
+---
+
+- name: "Restart pod"
+  ansible.builtin.systemd:
+    name: "{{ wiki_pod_name }}-pod"
+    state: restarted
+    enabled: true
+    daemon_reload: true
+  listen:
+    - "net.lafayette.wiki :: Pod updated"

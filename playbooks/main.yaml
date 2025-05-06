@@ -5,11 +5,7 @@
   become: true
 
   roles:
-    - net.lafayette.firewalld
-    - net.lafayette.networking
-    - net.lafayette.dnsmasq
-    - net.lafayette.pihole
-    - net.lafayette.wireguard
+    - net.lafayette.sys_router
 
 - name: Set up Lafayette-style media server
   hosts: mediaserver

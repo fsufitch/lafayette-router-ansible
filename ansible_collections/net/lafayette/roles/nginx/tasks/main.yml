@@ -31,7 +31,7 @@
     mode: ug+rw,o-rw
     owner: root
     group: root
-  notify: "net.lafayette.nginx_proxy :: Service updated"
+  notify: "net.lafayette.nginx :: Service updated"
 
 - name: Handle SSL configuration
   ansible.builtin.include_tasks: ssl_cert.yaml
@@ -42,7 +42,7 @@
     tag: "1.27-alpine"
     pull: "{{ nginx_image_pull }}"
     state: present
-  notify: "net.lafayette.nginx_proxy :: Service updated"
+  notify: "net.lafayette.nginx :: Service updated"
 
 - name: Create nginx proxy container
   containers.podman.podman_container:
@@ -69,7 +69,7 @@
         [Install]
         WantedBy=default.target
 
-  notify: "net.lafayette.nginx_proxy :: Service updated"
+  notify: "net.lafayette.nginx :: Service updated"
 
 - name: Create index.html
   ansible.builtin.copy:

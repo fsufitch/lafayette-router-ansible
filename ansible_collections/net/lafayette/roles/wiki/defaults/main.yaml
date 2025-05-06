@@ -1,0 +1,18 @@
+---
+
+wiki_virtual_host: "{{ ansible_hostname }}"
+wiki_port: 8001
+
+wiki_nginx_dropin: true
+wiki_nginx_dropin_proxy_pass: "http://localhost:{{ wiki_port }}"
+wiki_nginx_dropin_filename: lafayette-wiki.conf
+
+wiki_image_name: localhost/lafayette-wiki:latest
+wiki_image_build: true
+
+wiki_dir: /opt/lafayette/wiki
+wiki_storage_dir: "{{ wiki_dir }}/storage"
+
+wiki_pod_name: lafayette-wiki
+wiki_main_container_name: lafayette-wiki-main
+wiki_db_container_name: lafayette-wiki-db

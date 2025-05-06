@@ -1,0 +1,10 @@
+---
+
+dependencies:
+  - net.lafayette.firewalld
+  - net.lafayette.networking
+  - net.lafayette.dnsmasq
+  - net.lafayette.pihole
+  - net.lafayette.wireguard
+  - net.lafayette.nginx
+  - net.lafayette.wiki

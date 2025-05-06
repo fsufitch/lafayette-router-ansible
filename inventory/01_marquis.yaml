@@ -47,6 +47,7 @@ router:
             - ssh
             - cockpit
             - wireguard
+            - https
           interfaces:
             - "{{ _internet_interface }}"
 
@@ -86,7 +87,7 @@ router:
 
       dnsmasq_address_records:
         - addresses: [10.1.10.1, 10.2.10.1]
-          domains: ["{{ ansible_hostname }}", pi.hole]
+          domains: ["{{ ansible_hostname }}", pi.hole, wiki.lafayette.lan]
 
       dnsmasq_dhcp_subnets:
         - name: main
@@ -104,7 +105,7 @@ router:
               ipv4: 10.1.10.102
 
             - hostname: wlan2
-              mac: 80:cc:9c:48:4e:44 
+              mac: 80:cc:9c:48:4e:44
               ipv4: 10.1.10.104
 
         - name: iot
@@ -129,3 +130,8 @@ router:
       wireguard_port: 51820
       wireguard_public_endpoint: home.sufitchi.name
       wireguard_network: 10.1.20.1/24
+
+      nginx_ssl_cert: "/etc/letsencrypt/live/home.sufitchi.name/fullchain.pem"
+      nginx_ssl_key: "/etc/letsencrypt/live/home.sufitchi.name/privkey.pem"
+
+      wiki_virtual_host: "wiki.home.sufitchi.name wiki.lafayette.lan"

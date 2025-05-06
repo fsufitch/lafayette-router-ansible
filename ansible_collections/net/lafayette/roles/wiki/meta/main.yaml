@@ -1,0 +1,5 @@
+---
+
+dependencies:
+  - role: net.lafayette.podman
+  - role: net.lafayette.nginx

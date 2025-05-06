@@ -1,0 +1,8 @@
+---
+
+- name: Configure a wiki.js instance
+  hosts: router
+  become: true
+
+  roles:
+    - net.lafayette.wiki
