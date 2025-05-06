@@ -3,4 +3,5 @@
 - name: "net.lafayette.firewalld :: Reload"
   ansible.builtin.command:
     cmd: firewall-cmd --reload
+  register: result
   changed_when: not result.rc
