@@ -1,0 +1,81 @@
+---
+
+- name: Validate arguments
+  ansible.builtin.assert:
+    that:
+      - nginx_port is defined and nginx_port
+    fail_msg: "invalid arguments; nginx_port={{ nginx_port }}"
+
+- name: Install Python cryptography
+  ansible.builtin.pip:
+    name: cryptography
+    state: present
+
+- name: Create service directories
+  loop:
+    - "{{ nginx_dir }}"
+    - "{{ nginx_dir }}/conf.d"
+    - "{{ nginx_dir }}/logs"
+    - "{{ nginx_dir }}/www"
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    mode: ug+rwx,o-rwx
+    owner: root
+    group: root
+
+- name: Create conf file
+  ansible.builtin.template:
+    src: nginx.conf.j2
+    dest: "{{ nginx_dir }}/nginx.conf"
+    mode: ug+rw,o-rw
+    owner: root
+    group: root
+  notify: "net.lafayette.nginx_proxy :: Service updated"
+
+- name: Handle SSL configuration
+  ansible.builtin.include_tasks: ssl_cert.yaml
+
+- name: Pull image
+  containers.podman.podman_image:
+    name: "docker.io/nginx"
+    tag: "1.27-alpine"
+    pull: "{{ nginx_image_pull }}"
+    state: present
+  notify: "net.lafayette.nginx_proxy :: Service updated"
+
+- name: Create nginx proxy container
+  containers.podman.podman_container:
+    name: "lafayette-nginx"
+    image: "docker.io/nginx:1.27-alpine"
+    state: quadlet
+
+    # Proxy lives on the host network, for easy access to port 443 and ports of other containers
+    network: host
+
+    volumes:
+      - "{{ nginx_dir }}/nginx.conf:/etc/nginx/nginx.conf:ro,Z"
+      - "{{ nginx_dir }}/conf.d:/etc/nginx/conf.d:ro,Z"
+      - "{{ nginx_dir }}/logs:/var/log/nginx:rw,Z"
+      - "{{ nginx_ssl_cert }}:/etc/nginx/ssl/lafayette.crt:ro,Z"
+      - "{{ nginx_ssl_key }}:/etc/nginx/ssl/lafayette.key:ro,Z"
+      - "{{ nginx_dir }}/www:/www:ro,Z"
+
+    quadlet_options:
+      - |-
+        [Service]
+        Restart=always
+
+        [Install]
+        WantedBy=default.target
+
+  notify: "net.lafayette.nginx_proxy :: Service updated"
+
+- name: Create index.html
+  ansible.builtin.copy:
+    src: index.html
+    dest: "{{ nginx_dir }}/www/index.html"
+    mode: ug+rw,o-rw
+    owner: root
+    group: root
+    force: false  # do not overwrite if it already exists

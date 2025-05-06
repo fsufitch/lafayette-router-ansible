@@ -1,0 +1,14 @@
+---
+
+- name: Configure system-wide Nginx proxy
+  hosts: all
+  become: true
+
+  roles:
+    - role: net.lafayette.nginx
+      # vars:
+      #   nginx_image_pull: true
+      #   nginx_port: 443
+      #   nginx_dir: /opt/lafayette/nginx-proxy
+      #   nginx_ssl_cert: ""
+      #   nginx_ssl_key: ""

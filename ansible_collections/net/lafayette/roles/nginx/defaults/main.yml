@@ -1,0 +1,9 @@
+---
+
+nginx_image_pull: true
+nginx_port: 443
+
+nginx_dir: /opt/lafayette/nginx
+
+nginx_ssl_cert: ""
+nginx_ssl_key: ""

@@ -1,3 +1,6 @@
 {
-    "ansible.python.interpreterPath": "/home/fsufitch/.cache/pypoetry/virtualenvs/lafayette-router-ansible-sbcw-eam-py3.12/bin/python"
+    "ansible.python.interpreterPath": "/home/fsufitch/.cache/pypoetry/virtualenvs/lafayette-router-ansible-sbcw-eam-py3.12/bin/python",
+    "yaml.schemas": {
+        "https://raw.githubusercontent.com/ansible/ansible-lint/main/src/ansiblelint/schemas/ansible.json#/$defs/tasks": "file:///home/fsufitch/code/lafayette-router-ansible/ansible_collections/net/lafayette/roles/nginx_proxy/tasks/autogen_ssl_cert.yaml"
+    }
 }

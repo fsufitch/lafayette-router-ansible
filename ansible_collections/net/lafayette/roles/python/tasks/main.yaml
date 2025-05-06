@@ -1,0 +1,25 @@
+---
+
+- name: Install Python base system packages (RedHat)
+  ansible.builtin.package:
+    name: "{{ item }}"
+    state: present
+  loop:
+    - python3
+    - python3-pip
+  when: ansible_os_family == "RedHat"
+
+- name: Install Python base system packages (Debian)
+  ansible.builtin.package:
+    name: "{{ item }}"
+    state: present
+  loop:
+    - python3
+    - python3-pip
+    - python3-venv
+  when: ansible_os_family == "Debian"
+
+- name: Warn if it's not RedHat or Debian
+  ansible.builtin.debug:
+    msg: "This role is only supported on RedHat and Debian systems."
+  when: ansible_os_family not in ["RedHat", "Debian"]

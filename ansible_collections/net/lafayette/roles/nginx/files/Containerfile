@@ -1,0 +1,2 @@
+FROM docker.io/nginx:1.28-alpine
+

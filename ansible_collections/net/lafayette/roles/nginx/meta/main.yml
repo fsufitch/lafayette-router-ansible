@@ -1,0 +1,5 @@
+---
+
+dependencies:
+  - net.lafayette.podman
+  - net.lafayette.python
