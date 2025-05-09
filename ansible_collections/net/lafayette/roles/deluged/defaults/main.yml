@@ -18,3 +18,4 @@ deluged_wireguard_container_name: lafayette-deluged-wireguard
 
 deluged_web_port: 8112
 deluged_daemon_port: 58846
+deluged_incoming_port: 1337

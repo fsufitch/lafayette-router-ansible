@@ -46,6 +46,8 @@
     ports:
       - "{{ deluged_web_port }}:8112"
       - "{{ deluged_daemon_port }}:58846"
+      - "{{ deluged_incoming_port }}:1337/tcp"
+      - "{{ deluged_incoming_port }}:1337/udp"
 
     restart_policy: always
 
