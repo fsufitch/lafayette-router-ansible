@@ -3,3 +3,4 @@ sftp_server_user_name: ""
 sftp_server_user_password: ""
 sftp_server_user_group: ""
 sftp_server_user_home: "{{ sftp_server_storage }}"
+sftp_server_user_update: false

@@ -10,6 +10,7 @@
   vars:
     sftp_server_user_home: "{{ storage_dir }}"
     sftp_server_user_group: "{{ sftp_write_group }}"
+    sftp_server_readonly_user: "" # skip creating a readonly user in this case
 
   vars_prompt:
     - name: sftp_server_user_name
@@ -20,4 +21,9 @@
       prompt: "SFTP user password (set empty to leave unchanged)"
       private: true
       unsafe: true
+      default: ""
+
+    - name: sftp_server_user_update
+      prompt: "Update existing user details? (leave empty for NO)"
+      private: false
       default: ""

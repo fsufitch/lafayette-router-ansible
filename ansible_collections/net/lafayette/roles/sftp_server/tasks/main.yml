@@ -53,16 +53,16 @@
   register: sftp_server_storage_stat
 
 - name: Check storage directory existence
-  when: not sftp_server_storage_stat.stat.isdir
+  when: not (sftp_server_storage_stat.stat.isdir | default(false))
   ansible.builtin.fail:
     msg: "SFTP server storage directory {{ sftp_server_storage }} is invalid. Please create it or define a symlink."
 
 - name: Create sftp readonly user
   ansible.builtin.user:
-    name: "{{ sftp_readonly_user }}"
+    name: "{{ sftp_server_readonly_user }}"
     password: "{{ sftp_server_readonly_password | password_hash('sha512') }}"
     comment: "sftp readonly user"
     shell: /sbin/nologin
     create_home: false
     home: "{{ sftp_server_storage }}"
-  when: sftp_readonly_user is defined and sftp_readonly_user != ""
+  when: sftp_server_readonly_user is defined and sftp_server_readonly_user != ""
