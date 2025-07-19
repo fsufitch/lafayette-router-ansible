@@ -108,6 +108,10 @@ router:
               mac: 80:cc:9c:48:4e:44
               ipv4: 10.1.10.104
 
+            - hostname: switch1
+              mac: ec:75:0c:4c:95:a6
+              ipv4: 10.1.10.105
+
         - name: iot
           domain: lafayette.iot
           interface: "{{ _iot_interface }}"
