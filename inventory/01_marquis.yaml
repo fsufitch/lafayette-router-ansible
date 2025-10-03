@@ -133,9 +133,11 @@ router:
 
       wireguard_configs:
         - id: home-vpn
-          wireguard_port: 51820
-          wireguard_public_endpoint: home.sufitchi.name
-          wireguard_network: 10.1.20.1/24
+          dir: /opt/lafayette/wireguard
+          port: 51820
+          public_endpoint: home.sufitchi.name
+          network: 10.1.20.1/24
+          interface_name: wg0
 
       nginx_ssl_cert: "/etc/letsencrypt/live/home.sufitchi.name/fullchain.pem"
       nginx_ssl_key: "/etc/letsencrypt/live/home.sufitchi.name/privkey.pem"
