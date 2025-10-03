@@ -1,11 +1,13 @@
 ---
 
 wireguard_wg_vlan_bin: "{{ golang_gopath }}/bin/wg-vlan"
-wireguard_dir: /opt/lafayette/wireguard
+wireguard_configs: []
+  # - id: wg-example
+  #   dir: /opt/lafayette/wireguard
 
-wireguard_public_endpoint:  # foo.com:51820
-wireguard_port: 51820
-wireguard_network: 10.1.20.1/24
-wireguard_private_key:
+  #   public_endpoint: ""
+  #   port: 51820
+  #   network: 10.1.20.1/24
+  #   private_key: ""
 
-wireguard_interface_name: wg0
+  #   interface_name: wg0

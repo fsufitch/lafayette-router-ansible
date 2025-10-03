@@ -131,9 +131,11 @@ router:
 
       golang_gopath: /opt/go
 
-      wireguard_port: 51820
-      wireguard_public_endpoint: home.sufitchi.name
-      wireguard_network: 10.1.20.1/24
+      wireguard_configs:
+        - id: home-vpn
+          wireguard_port: 51820
+          wireguard_public_endpoint: home.sufitchi.name
+          wireguard_network: 10.1.20.1/24
 
       nginx_ssl_cert: "/etc/letsencrypt/live/home.sufitchi.name/fullchain.pem"
       nginx_ssl_key: "/etc/letsencrypt/live/home.sufitchi.name/privkey.pem"

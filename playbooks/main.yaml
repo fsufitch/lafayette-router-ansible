@@ -27,3 +27,11 @@
     - role: net.lafayette.samba_server
 
     - role: net.lafayette.deluged
+
+- name: Set up Lafayette-style web bastion
+  hosts: webbastion
+  become: true
+
+  roles:
+    - role: net.lafayette.firewalld
+    - role: net.lafayette.wireguard

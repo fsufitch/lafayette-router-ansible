@@ -1,0 +1,110 @@
+webbastion:
+  hosts:
+    yorktown:
+      ansible_host: yorktown.sufitchi.name
+
+      # Common "macro" variables, for reuse and easy changing
+      _internet_interface: enp1s0
+
+      _wireguard_public_address: yorktown.sufitchi.name
+
+      _wireguard_lab_interface: wg-lab
+      _wireguard_lab_port: 52001
+
+      _wireguard_home_interface: wg-home
+      _wireguard_home_port: 52002
+
+      _wireguard_game_interface: wg-game
+      _wireguard_game_port: 52003
+
+      # Actual variables for roles
+      firewalld_default_zone: public
+      firewalld_zones:
+        - name: public
+          target: default
+          forward: true
+          masquerade: true
+          services:
+            - ssh
+            - cockpit
+          ports:
+            - "{{ _wireguard_lab_port }}/udp"
+            - "{{ _wireguard_home_port }}/udp"
+            - "{{ _wireguard_game_port }}/udp"
+          interfaces:
+            - "{{ _internet_interface }}"
+
+        - name: wg-lab
+          target: default
+          forward: true
+          masquerade: false
+          services: []
+          ports:
+            - 1-65535/tcp
+            - 1-65535/udp
+
+          interfaces:
+            - "{{ _wireguard_lab_interface }}"
+
+        - name: wg-home
+          target: default
+          forward: true
+          masquerade: false
+          services: []
+          ports: []
+          interfaces:
+            - "{{ _wireguard_home_interface }}"
+
+        - name: wg-game
+          target: default
+          forward: true
+          masquerade: false
+          services: []
+          ports: []
+          interfaces:
+            - "{{ _wireguard_game_interface }}"
+
+      firewalld_forward_policies:
+        - name: wg-lab2public
+          ingress_zone: wg-lab
+          egress_zone: public
+
+        - name: wg-home2public
+          ingress_zone: wg-home
+          egress_zone: public
+
+      wireguard_configs:
+        - id: lab
+          wg_vlan_bin: "{{ golang_gopath }}/bin/wg-vlan"
+          dir: /opt/lafayette/wireguard-lab
+
+          public_endpoint: "{{ _wireguard_public_address }}:{{ _wireguard_lab_port }}"
+          port: "{{ _wireguard_lab_port }}"
+          network: 10.111.0.1/16
+          private_key: null
+
+          interface_name: "{{ _wireguard_lab_interface }}"
+
+        - id: home
+          wg_vlan_bin: "{{ golang_gopath }}/bin/wg-vlan"
+          dir: /opt/lafayette/wireguard-home
+
+          public_endpoint: "{{ _wireguard_public_address }}:{{ _wireguard_home_port }}"
+          port: "{{ _wireguard_home_port }}"
+          network: 10.112.0.1/16
+          private_key: null
+
+          interface_name: "{{ _wireguard_home_interface }}"
+
+        - id: game
+          wg_vlan_bin: "{{ golang_gopath }}/bin/wg-vlan"
+          dir: /opt/lafayette/wireguard-game
+
+          public_endpoint: "{{ _wireguard_public_address }}:{{ _wireguard_game_port }}"
+          port: "{{ _wireguard_game_port }}"
+          network: 10.113.0.1/16
+          private_key: null
+
+          interface_name: "{{ _wireguard_game_interface }}"
+
+      golang_gopath: /opt/go

@@ -1,0 +1,9 @@
+---
+
+- name: Regenerate Wireguard service configurations
+  loop: "{{ wireguard_configs }}"
+  loop_control:
+    label: "{{ wireguard_item.id }}"
+    loop_var: wireguard_item
+  ansible.builtin.include_tasks:
+    file: regen_item.yaml

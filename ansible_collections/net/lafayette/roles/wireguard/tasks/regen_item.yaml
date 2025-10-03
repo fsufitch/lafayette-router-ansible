@@ -1,0 +1,29 @@
+---
+
+- name: "Generate wireguard service configuration ({{ wireguard_item.id }})"
+  listen: "net.lafayette.wireguard :: Regenerate"
+  ansible.builtin.command:
+    cmd: >-
+      {{ golang_gopath | quote }}/bin/wg-vlan export --server --vlan-config {{ wireguard_item.dir | quote }}/wg-vlan.yaml
+  changed_when: false
+  register: wg_config
+
+- name: "Write Wireguard service configuration ({{ wireguard_item.id }})"
+  listen: "net.lafayette.wireguard :: Regenerate"
+  ansible.builtin.copy:
+    dest: /etc/wireguard/{{ wireguard_item.interface_name }}.conf
+    content: "{{ wg_config.stdout }}\n"
+    mode: ug+rw,o+r
+    owner: root
+
+- name: "Enable wg-quick service ({{ wireguard_item.id }})"
+  listen: "net.lafayette.wireguard :: Regenerate"
+  ansible.builtin.systemd:
+    name: "wg-quick@{{ wireguard_item.interface_name }}"
+    enabled: true
+
+- name: "Restart wg-quick service ({{ wireguard_item.id }})"
+  listen: "net.lafayette.wireguard :: Regenerate"
+  ansible.builtin.systemd:
+    name: "wg-quick@{{ wireguard_item.interface_name }}"
+    state: restarted
