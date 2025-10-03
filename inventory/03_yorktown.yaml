@@ -4,7 +4,7 @@ webbastion:
       ansible_host: yorktown.sufitchi.name
 
       # Common "macro" variables, for reuse and easy changing
-      _internet_interface: enp1s0
+      _internet_interface: ens5
 
       _wireguard_public_address: yorktown.sufitchi.name
 
