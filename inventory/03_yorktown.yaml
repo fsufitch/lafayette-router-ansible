@@ -100,7 +100,7 @@ webbastion:
           wg_vlan_bin: "{{ golang_gopath }}/bin/wg-vlan"
           dir: /opt/lafayette/wireguard-game
 
-          public_endpoint: "{{ _wireguard_public_address }}:{{ _wireguard_game_port }}"
+          public_endpoint: "{{ _wireguard_public_address }}"
           port: "{{ _wireguard_game_port }}"
           network: 10.113.0.1/16
           private_key: null
