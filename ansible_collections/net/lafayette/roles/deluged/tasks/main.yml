@@ -19,6 +19,14 @@
     group: root
   notify: "net.lafayette.deluged :: Service updated"
 
+- name: Pull the base image for deluged
+  containers.podman.podman_image:
+    name: docker.io/debian:testing-slim
+    state: present
+    pull: true
+    force: true
+  notify: "net.lafayette.deluged :: Service updated"
+
 - name: Build deluged image
   when: deluged_image_build
   containers.podman.podman_image:
