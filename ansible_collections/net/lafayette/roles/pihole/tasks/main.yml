@@ -44,6 +44,13 @@
         WantedBy=default.target
     hostname: pi.hole
 
+    # NOTE: Need to use host network mode for security.
+    # Using bridge mode triggers Netavark logic for setting up ports,
+    # which inserts nft rules that have higher priority than firewalld rules.
+    # This means that Pihole listening to 0.0.0.0 will respond to queries from anywhere,
+    # bypassing firewalld restrictions.
+    network: host
+
     env:
       TZ: "{{ ansible_date_time['tz'] }}"
       WEBPASSWORD: "{{ pihole_web_password }}"
@@ -52,9 +59,8 @@
       # Inside a container, it's safe to be root
       DNSMASQ_USER: root
 
-      # These values are relevant only in the container
-      WEB_PORT: 80
-      WEB_BIND_ADDR: 0.0.0.0
+      WEB_PORT: "{{ pihole_port_http }}"
+      WEB_BIND_ADDR: "{{ pihole_local_ip }}"
 
       PIHOLE_DOMAIN: "{{ pihole_reverse_dhcp_domain }}"
 
@@ -62,11 +68,6 @@
       REV_SERVER_DOMAIN: "{{ pihole_reverse_dhcp_domain }}"
       REV_SERVER_TARGET: "{{ pihole_reverse_dhcp_target }}"
       REV_SERVER_CIDR: "{{ pihole_reverse_dhcp_cidr }}"
-
-    ports:
-      - "{{ pihole_local_ip }}:{{ pihole_port_http }}:80/tcp"
-      - "{{ pihole_port_dns }}:53/udp"
-      - "{{ pihole_port_dns }}:53/tcp"
 
     volumes:
       - "{{ pihole_dir }}/etc-pihole:/etc/pihole:rw,z"
