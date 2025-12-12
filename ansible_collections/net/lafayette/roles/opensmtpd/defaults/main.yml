@@ -10,6 +10,8 @@ opensmtpd_container_name: lafayette-opensmtpd
 
 opensmtpd_listen_addrs: []
 opensmtpd_submission_port: 587
+opensmtpd_implicit_tls_port: 0
+opensmtpd_plain_port: 0
 
 opensmtpd_require_starttls: true
 opensmtpd_pki_name: lafayette-opensmtpd

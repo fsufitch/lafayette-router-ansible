@@ -24,6 +24,19 @@ listen on {{ addr }} port {{ opensmtpd_submission_port }}
         {{' '}}auth <printer_secrets>
     {%- endif %}
 {% endfor %}
+{%- if opensmtpd_implicit_tls_port | int > 0 %}
+{% for addr in opensmtpd_listen_addrs %}
+
+listen on {{ addr }} port {{ opensmtpd_implicit_tls_port }} tls pki {{ opensmtpd_pki_name }}{% if opensmtpd_printer_auth_enabled %} auth <printer_secrets>{% endif %}
+{% endfor %}
+{%- endif %}
+
+{%- if opensmtpd_plain_port | int > 0 %}
+{% for addr in opensmtpd_listen_addrs %}
+
+listen on {{ addr }} port {{ opensmtpd_plain_port }}
+{% endfor %}
+{%- endif %}
 
 action "relay_ses" relay host smtp+tls://ses@{{ opensmtpd_ses_smtp_host }}:{{ opensmtpd_ses_smtp_port }} auth <ses_secrets>{% if opensmtpd_envelope_mail_from | length > 0 %} mail-from "{{ opensmtpd_envelope_mail_from }}"{% endif %}
 

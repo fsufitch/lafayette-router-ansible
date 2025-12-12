@@ -38,6 +38,8 @@ router:
             - wireguard
           ports:
             - 587/tcp
+            - 465/tcp
+            - 25/tcp
           interfaces:
             - "{{ _iot_interface }}"
 
@@ -148,8 +150,10 @@ router:
 
       opensmtpd_listen_addrs:
         - 10.1.10.1
-        - 10.2.10.1
+
       opensmtpd_submission_port: 587
+      opensmtpd_implicit_tls_port: 465
+      opensmtpd_plain_port: 25
       opensmtpd_require_starttls: true
       opensmtpd_pki_cert: "/etc/letsencrypt/live/home.sufitchi.name/fullchain.pem"
       opensmtpd_pki_key: "/etc/letsencrypt/live/home.sufitchi.name/privkey.pem"
@@ -157,7 +161,8 @@ router:
       opensmtpd_printer_auth_enabled: true
       opensmtpd_printer_username: ""
       opensmtpd_printer_password: ""
-      opensmtpd_allowed_srcs: []
+      opensmtpd_allowed_srcs:
+        - 10.1.10.240/32 # Canon office printer
 
       opensmtpd_ses_region: us-east-1
       opensmtpd_ses_smtp_username: ""
