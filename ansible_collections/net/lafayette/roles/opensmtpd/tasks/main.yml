@@ -1,0 +1,150 @@
+---
+
+- name: Validate opensmtpd configuration
+  ansible.builtin.assert:
+    that:
+      - opensmtpd_listen_addrs | length > 0
+      - (not opensmtpd_manage_secrets) or (opensmtpd_ses_smtp_username | length > 0)
+      - (not opensmtpd_manage_secrets) or (opensmtpd_ses_smtp_password | length > 0)
+      - opensmtpd_printer_auth_enabled or (opensmtpd_allowed_srcs | length > 0)
+      - (not opensmtpd_manage_secrets) or (not opensmtpd_printer_auth_enabled) or (opensmtpd_printer_username | length > 0 and opensmtpd_printer_password | length > 0)
+      - (not opensmtpd_require_starttls) or (opensmtpd_pki_cert | length > 0 and opensmtpd_pki_key | length > 0)
+    fail_msg: |-
+      opensmtpd role is missing required configuration. Check:
+      - opensmtpd_listen_addrs (must have at least one address)
+      - opensmtpd_ses_smtp_username / opensmtpd_ses_smtp_password (when opensmtpd_manage_secrets=true)
+      - either printer auth enabled or opensmtpd_allowed_srcs
+      - when managing secrets and using printer auth, printer username/password
+      - TLS cert/key when opensmtpd_require_starttls=true
+
+- name: Create opensmtpd service directories
+  loop:
+    - "{{ opensmtpd_dir }}"
+    - "{{ opensmtpd_build_dir }}"
+    - "{{ opensmtpd_config_dir }}"
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "0750"
+
+- name: Create opensmtpd spool directory
+  ansible.builtin.file:
+    path: "{{ opensmtpd_spool_dir }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "0711"
+
+- name: Create opensmtpd secrets directory
+  ansible.builtin.file:
+    path: "{{ opensmtpd_secrets_dir }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: Render opensmtpd config
+  ansible.builtin.template:
+    dest: "{{ opensmtpd_config_dir }}/smtpd.conf"
+    mode: "0640"
+    owner: root
+    group: root
+    src: smtpd.conf.j2
+  notify:
+    - "net.lafayette.opensmtpd :: Service updated"
+
+- name: Render SES relay secrets
+  when: opensmtpd_manage_secrets
+  ansible.builtin.template:
+    dest: "{{ opensmtpd_secrets_dir }}/ses_secrets"
+    mode: "0644"
+    owner: root
+    group: root
+    src: ses_secrets.j2
+  notify:
+    - "net.lafayette.opensmtpd :: Service updated"
+
+- name: Render printer auth secrets
+  when: opensmtpd_manage_secrets and opensmtpd_printer_auth_enabled
+  ansible.builtin.template:
+    dest: "{{ opensmtpd_secrets_dir }}/printer_secrets"
+    mode: "0644"
+    owner: root
+    group: root
+    src: printer_secrets.j2
+  notify:
+    - "net.lafayette.opensmtpd :: Service updated"
+
+- name: Stage Containerfile for build
+  ansible.builtin.copy:
+    src: "files/Containerfile"
+    dest: "{{ opensmtpd_build_dir }}/Containerfile"
+    mode: "0644"
+  notify:
+    - "net.lafayette.opensmtpd :: Service updated"
+
+- name: Stage entrypoint for build
+  ansible.builtin.copy:
+    src: "files/entrypoint.sh"
+    dest: "{{ opensmtpd_build_dir }}/entrypoint.sh"
+    mode: "0755"
+  notify:
+    - "net.lafayette.opensmtpd :: Service updated"
+
+- name: Build opensmtpd image
+  when: opensmtpd_image_build
+  containers.podman.podman_image:
+    name: "{{ opensmtpd_image }}"
+    state: build
+    force: true
+    path: "{{ opensmtpd_build_dir }}"
+
+  notify:
+    - "net.lafayette.opensmtpd :: Service updated"
+
+- name: Build container volume list
+  ansible.builtin.set_fact:
+    opensmtpd_container_volumes: >-
+      {{
+        [
+          opensmtpd_config_dir ~ ':/etc/smtpd:ro,z',
+          opensmtpd_secrets_dir ~ ':/mnt/smtpd_secrets:ro,z',
+          opensmtpd_spool_dir ~ ':/var/spool/smtpd:rw,z'
+        ]
+        +
+        (
+          (opensmtpd_pki_cert | length > 0 and opensmtpd_pki_key | length > 0)
+          | ternary(
+            [
+              opensmtpd_pki_cert ~ ':' ~ opensmtpd_pki_cert ~ ':ro,z',
+              opensmtpd_pki_key ~ ':' ~ opensmtpd_pki_key ~ ':ro,z'
+            ],
+            []
+          )
+        )
+      }}
+
+- name: Configure opensmtpd container
+  containers.podman.podman_container:
+    name: "{{ opensmtpd_container_name }}"
+    image: "{{ opensmtpd_image }}"
+    state: quadlet
+
+    quadlet_options:
+      - |-
+        [Service]
+        Restart=always
+
+        [Install]
+        WantedBy=default.target
+
+    network: host
+    hostname: "{{ ansible_hostname }}"
+    init: true
+
+    volumes: "{{ opensmtpd_container_volumes }}"
+
+  notify:
+    - "net.lafayette.opensmtpd :: Service updated"

@@ -36,6 +36,8 @@ router:
             - dhcp
             - dns
             - wireguard
+          ports:
+            - 587/tcp
           interfaces:
             - "{{ _iot_interface }}"
 
@@ -143,3 +145,20 @@ router:
       nginx_ssl_key: "/etc/letsencrypt/live/home.sufitchi.name/privkey.pem"
 
       wiki_virtual_host: "wiki.home.sufitchi.name wiki.lafayette.lan"
+
+      opensmtpd_listen_addrs:
+        - 10.1.10.1
+        - 10.2.10.1
+      opensmtpd_submission_port: 587
+      opensmtpd_require_starttls: true
+      opensmtpd_pki_cert: "/etc/letsencrypt/live/home.sufitchi.name/fullchain.pem"
+      opensmtpd_pki_key: "/etc/letsencrypt/live/home.sufitchi.name/privkey.pem"
+      opensmtpd_manage_secrets: false
+      opensmtpd_printer_auth_enabled: true
+      opensmtpd_printer_username: ""
+      opensmtpd_printer_password: ""
+      opensmtpd_allowed_srcs: []
+
+      opensmtpd_ses_region: us-east-1
+      opensmtpd_ses_smtp_username: ""
+      opensmtpd_ses_smtp_password: ""

@@ -1,0 +1,7 @@
+---
+
+- name: "net.lafayette.opensmtpd :: Service updated"
+  ansible.builtin.systemd:
+    name: "{{ opensmtpd_container_name }}"
+    daemon_reload: true
+    state: restarted

@@ -1,0 +1,35 @@
+opensmtpd_dir: /opt/lafayette/opensmtpd
+opensmtpd_build_dir: "{{ opensmtpd_dir }}/build"
+opensmtpd_config_dir: "{{ opensmtpd_dir }}/config"
+opensmtpd_secrets_dir: "{{ opensmtpd_dir }}/secrets"
+opensmtpd_spool_dir: "{{ opensmtpd_dir }}/spool"
+
+opensmtpd_image_build: true
+opensmtpd_image: lafayette-opensmtpd
+opensmtpd_container_name: lafayette-opensmtpd
+
+opensmtpd_listen_addrs: []
+opensmtpd_submission_port: 587
+
+opensmtpd_require_starttls: true
+opensmtpd_pki_name: lafayette-opensmtpd
+opensmtpd_pki_cert: ""
+opensmtpd_pki_key: ""
+
+opensmtpd_manage_secrets: true
+opensmtpd_printer_auth_enabled: false
+
+# Choose one (or both): authenticated printer credentials or source IP allowlist.
+opensmtpd_printer_username: ""
+opensmtpd_printer_password: ""
+# Optional pre-hashed printer password (e.g., output of `smtpctl encrypt <password>`).
+# When set, this is used in the credentials table instead of the cleartext password.
+opensmtpd_printer_password_hash: ""
+opensmtpd_allowed_srcs: []
+
+opensmtpd_ses_region: us-east-1
+opensmtpd_ses_smtp_host: "email-smtp.{{ opensmtpd_ses_region }}.amazonaws.com"
+opensmtpd_ses_smtp_port: 587
+opensmtpd_ses_smtp_username: ""
+opensmtpd_ses_smtp_password: ""
+opensmtpd_envelope_mail_from: ""

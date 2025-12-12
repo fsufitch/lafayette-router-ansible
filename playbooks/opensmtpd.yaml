@@ -1,0 +1,8 @@
+---
+
+- name: OpenSMTPD setup
+  hosts: router
+  become: true
+
+  roles:
+    - net.lafayette.opensmtpd
