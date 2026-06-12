@@ -163,6 +163,7 @@ router:
       opensmtpd_printer_password: ""
       opensmtpd_allowed_srcs:
         - 10.1.10.240/32 # Canon office printer
+        - 10.1.10.192/32 # Brother office printer
 
       opensmtpd_ses_region: us-east-1
       opensmtpd_ses_smtp_username: ""
